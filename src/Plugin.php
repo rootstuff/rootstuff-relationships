@@ -10,6 +10,7 @@ use RelateWP\REST\RelationshipsController;
 use RelateWP\REST\ConnectionsController;
 use RelateWP\REST\SearchController;
 use RelateWP\Hooks\PostDeleteHandler;
+use RelateWP\Admin\AdminColumns;
 
 final class Plugin {
 
@@ -36,6 +37,10 @@ final class Plugin {
 
 		QueryIntegration::register();
 		PostDeleteHandler::register();
+
+		if ( is_admin() ) {
+			AdminColumns::register();
+		}
 	}
 
 	public static function fire_init(): void {
@@ -106,12 +111,15 @@ final class Plugin {
 			$symmetric      = $definition['symmetric'] ?? false;
 			$same_type      = ( $from_post_type === $to_post_type && '' !== $from_post_type );
 
+			$sortable = ! empty( $definition['sortable'] );
+
 			if ( $same_type && $symmetric && $current_post_type === $from_post_type ) {
 				$panels[] = [
 					'relType'  => $key,
 					'side'     => $current_post_type,
 					'label'    => $definition['labels']['from'] ?? $key,
 					'postType' => $from_post_type,
+					'sortable' => $sortable,
 				];
 				continue;
 			}
@@ -122,6 +130,7 @@ final class Plugin {
 					'side'     => $roles[0],
 					'label'    => $definition['labels']['from'] ?? $key,
 					'postType' => $to_post_type,
+					'sortable' => $sortable,
 				];
 				if ( $definition['bidirectional'] ) {
 					$panels[] = [
@@ -129,6 +138,7 @@ final class Plugin {
 						'side'     => $roles[1],
 						'label'    => $definition['labels']['to'] ?? $key,
 						'postType' => $from_post_type,
+						'sortable' => $sortable,
 					];
 				}
 				continue;
@@ -140,6 +150,7 @@ final class Plugin {
 					'side'     => $from_post_type,
 					'label'    => $definition['labels']['from'] ?? $key,
 					'postType' => $to_post_type,
+					'sortable' => $sortable,
 				];
 			}
 
@@ -149,6 +160,7 @@ final class Plugin {
 					'side'     => $to_post_type,
 					'label'    => $definition['labels']['to'] ?? $key,
 					'postType' => $from_post_type,
+					'sortable' => $sortable,
 				];
 			}
 		}

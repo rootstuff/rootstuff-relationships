@@ -11,6 +11,22 @@
 		"relType": {
 			"type": "string",
 			"default": ""
+		},
+		"layout": {
+			"type": "string",
+			"default": "list"
+		},
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"showThumbnail": {
+			"type": "boolean",
+			"default": true
+		},
+		"showExcerpt": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"supports": {

@@ -76,6 +76,22 @@ const store = createReduxStore( STORE_NAME, {
 				};
 			}
 
+			case 'REORDER_CONNECTIONS': {
+				const key = buildKey(
+					action.relType,
+					action.objectId,
+					action.side
+				);
+				const items = [ ...( state.connections[ key ] || [] ) ];
+				const [ moved ] = items.splice( action.fromIndex, 1 );
+				items.splice( action.toIndex, 0, moved );
+				return {
+					...state,
+					connections: { ...state.connections, [ key ]: items },
+					dirty: { ...state.dirty, [ key ]: true },
+				};
+			}
+
 			case 'SET_SEARCHING': {
 				const key = buildKey(
 					action.relType,
@@ -154,6 +170,17 @@ const store = createReduxStore( STORE_NAME, {
 				objectId,
 				side,
 				itemId,
+			};
+		},
+
+		reorderConnections( relType, objectId, side, fromIndex, toIndex ) {
+			return {
+				type: 'REORDER_CONNECTIONS',
+				relType,
+				objectId,
+				side,
+				fromIndex,
+				toIndex,
 			};
 		},
 

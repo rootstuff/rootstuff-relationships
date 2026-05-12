@@ -55,6 +55,12 @@ final class Relation {
 
 		$connection_id = (int) $wpdb->insert_id;
 
+		if ( ! empty( $args['meta'] ) && is_array( $args['meta'] ) ) {
+			foreach ( $args['meta'] as $key => $value ) {
+				self::setMeta( $connection_id, $key, $value );
+			}
+		}
+
 		RelationshipCache::flush_for_object( $rel_type, $from_id );
 		RelationshipCache::flush_for_object( $rel_type, $to_id );
 
@@ -82,6 +88,15 @@ final class Relation {
 		global $wpdb;
 		$table = Tables::relationships();
 
+		$connection_id = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$table} WHERE rel_type = %s AND from_object_id = %d AND to_object_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$rel_type,
+				$from_id,
+				$to_id
+			)
+		);
+
 		$deleted = $wpdb->delete(
 			$table,
 			[
@@ -93,6 +108,9 @@ final class Relation {
 		);
 
 		if ( $deleted ) {
+			if ( $connection_id ) {
+				self::deleteAllMeta( $connection_id );
+			}
 			RelationshipCache::flush_for_object( $rel_type, $from_id );
 			RelationshipCache::flush_for_object( $rel_type, $to_id );
 
@@ -252,13 +270,14 @@ final class Relation {
 
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT rel_type, from_object_id, to_object_id FROM {$table} WHERE from_object_id = %d OR to_object_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT id, rel_type, from_object_id, to_object_id FROM {$table} WHERE from_object_id = %d OR to_object_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$object_id,
 				$object_id
 			)
 		);
 
 		foreach ( $rows as $row ) {
+			self::deleteAllMeta( (int) $row->id );
 			RelationshipCache::flush_for_object( $row->rel_type, (int) $row->from_object_id );
 			RelationshipCache::flush_for_object( $row->rel_type, (int) $row->to_object_id );
 		}
@@ -399,6 +418,148 @@ final class Relation {
 				sprintf( 'Relationship type "%s" is not registered.', $rel_type )
 			);
 		}
+	}
+
+	/**
+	 * Get a single meta value for a connection.
+	 *
+	 * @return mixed|null The unserialized value, or null if not found.
+	 */
+	public static function getMeta( int $connection_id, string $key ): mixed {
+		global $wpdb;
+		$table = Tables::relationship_meta();
+
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_value FROM {$table} WHERE rel_id = %d AND meta_key = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$connection_id,
+				$key
+			)
+		);
+
+		return null === $value ? null : maybe_unserialize( $value );
+	}
+
+	/**
+	 * Get all meta for a connection.
+	 *
+	 * @return array<string, mixed> Keyed by meta_key.
+	 */
+	public static function getAllMeta( int $connection_id ): array {
+		global $wpdb;
+		$table = Tables::relationship_meta();
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT meta_key, meta_value FROM {$table} WHERE rel_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$connection_id
+			)
+		);
+
+		$meta = [];
+		foreach ( $rows as $row ) {
+			$meta[ $row->meta_key ] = maybe_unserialize( $row->meta_value );
+		}
+
+		return $meta;
+	}
+
+	/**
+	 * Set a meta value for a connection (insert or update).
+	 */
+	public static function setMeta( int $connection_id, string $key, mixed $value ): bool {
+		global $wpdb;
+		$table      = Tables::relationship_meta();
+		$serialized = maybe_serialize( $value );
+
+		$existing = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT meta_id FROM {$table} WHERE rel_id = %d AND meta_key = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$connection_id,
+				$key
+			)
+		);
+
+		if ( $existing ) {
+			$result = $wpdb->update(
+				$table,
+				[ 'meta_value' => $serialized ],
+				[ 'meta_id' => (int) $existing ],
+				[ '%s' ],
+				[ '%d' ]
+			);
+			return false !== $result;
+		}
+
+		$result = $wpdb->insert(
+			$table,
+			[
+				'rel_id'     => $connection_id,
+				'meta_key'   => $key,
+				'meta_value' => $serialized,
+			],
+			[ '%d', '%s', '%s' ]
+		);
+
+		return false !== $result;
+	}
+
+	/**
+	 * Delete a specific meta key for a connection.
+	 */
+	public static function deleteMeta( int $connection_id, string $key ): bool {
+		global $wpdb;
+		$table = Tables::relationship_meta();
+
+		$deleted = $wpdb->delete(
+			$table,
+			[
+				'rel_id'   => $connection_id,
+				'meta_key' => $key,
+			],
+			[ '%d', '%s' ]
+		);
+
+		return (bool) $deleted;
+	}
+
+	/**
+	 * Delete all meta for a connection.
+	 */
+	public static function deleteAllMeta( int $connection_id ): int {
+		global $wpdb;
+		$table = Tables::relationship_meta();
+
+		$deleted = $wpdb->delete(
+			$table,
+			[ 'rel_id' => $connection_id ],
+			[ '%d' ]
+		);
+
+		return $deleted ?: 0;
+	}
+
+	/**
+	 * Find the connection ID for a specific link between two objects.
+	 *
+	 * @return int|null The connection row ID, or null if not found.
+	 */
+	public static function getConnectionId( string $rel_type, int $from_id, int $to_id ): ?int {
+		self::validate_rel_type( $rel_type );
+
+		global $wpdb;
+		$table = Tables::relationships();
+
+		$id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$table} WHERE rel_type = %s AND from_object_id = %d AND to_object_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$rel_type,
+				$from_id,
+				$to_id
+			)
+		);
+
+		return $id ? (int) $id : null;
 	}
 
 	/**

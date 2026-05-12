@@ -73,10 +73,33 @@
 	justify-content: space-between;
 	padding: 6px 0;
 	border-bottom: 1px solid #f0f0f1;
+	transition: background-color 0.1s;
 }
 
 .relatewp-relationship-list__item:last-child {
 	border-bottom: none;
+}
+
+.relatewp-relationship-list__item[draggable="true"] {
+	cursor: grab;
+}
+
+.relatewp-relationship-list__item[draggable="true"]:active {
+	cursor: grabbing;
+}
+
+.relatewp-relationship-list__item--dragging {
+	opacity: 0.4;
+}
+
+.relatewp-relationship-list__item--drop-above {
+	border-top: 2px solid var(--wp-admin-theme-color, #3858e9);
+	padding-top: 4px;
+}
+
+.relatewp-relationship-list__item--drop-below {
+	border-bottom: 2px solid var(--wp-admin-theme-color, #3858e9);
+	padding-bottom: 4px;
 }
 
 .relatewp-relationship-list__item-title {
@@ -93,4 +116,23 @@
 	margin-top: 12px;
 	width: 100%;
 	justify-content: center;
+}
+
+/* Drag handle */
+.relatewp-relationship-list__drag-handle {
+	display: flex;
+	align-items: center;
+	color: #949494;
+	cursor: grab;
+	margin-right: 4px;
+	flex-shrink: 0;
+}
+
+.relatewp-relationship-list__drag-handle:active {
+	cursor: grabbing;
+}
+
+.relatewp-relationship-list__drag-handle svg {
+	width: 18px;
+	height: 18px;
 }

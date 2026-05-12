@@ -1,5 +1,53 @@
+.relatewp-related-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
 .relatewp-related-content__placeholder {
 	opacity: 0.5;
 	font-style: italic;
 	font-size: 0.875em;
+}
+
+/* Grid layout */
+.relatewp-related-content__grid {
+	display: grid;
+	grid-template-columns: repeat(var(--relatewp-columns, 3), 1fr);
+	gap: 1.5rem;
+}
+
+.relatewp-related-content__card {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.relatewp-related-content__thumb {
+	display: block;
+}
+
+.relatewp-related-content__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	object-fit: cover;
+}
+
+.relatewp-related-content__excerpt {
+	margin: 0;
+	font-size: 0.875em;
+	opacity: 0.75;
+}
+
+@media (max-width: 600px) {
+	.relatewp-related-content__grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Inline layout */
+.relatewp-related-content__inline {
+	margin: 0;
 }

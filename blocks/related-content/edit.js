@@ -4,8 +4,17 @@ import {
 	useInnerBlocksProps,
 	InspectorControls,
 } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, Placeholder } from '@wordpress/components';
+import {
+	PanelBody,
+	SelectControl,
+	Placeholder,
+	ButtonGroup,
+	Button,
+	RangeControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { list, grid, page } from '@wordpress/icons';
 import apiFetch from '@wordpress/api-fetch';
 
 const TEMPLATE = [
@@ -18,8 +27,14 @@ const TEMPLATE = [
 	],
 ];
 
+const LAYOUT_OPTIONS = [
+	{ value: 'list', label: __( 'List', 'relatewp' ), icon: list },
+	{ value: 'grid', label: __( 'Grid', 'relatewp' ), icon: grid },
+	{ value: 'inline', label: __( 'Inline', 'relatewp' ), icon: page },
+];
+
 export default function Edit( { attributes, setAttributes } ) {
-	const { relType } = attributes;
+	const { relType, layout, columns, showThumbnail, showExcerpt } = attributes;
 	const [ relationships, setRelationships ] = useState( [] );
 
 	useEffect( () => {
@@ -37,7 +52,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	];
 
 	const blockProps = useBlockProps( {
-		className: 'relatewp-related-content',
+		className: `relatewp-related-content relatewp-layout-${ layout }`,
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps(
@@ -75,6 +90,47 @@ export default function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) => setAttributes( { relType: value } ) }
 						__nextHasNoMarginBottom
 					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Layout', 'relatewp' ) }>
+					<div style={ { display: 'flex', flexDirection: 'column', gap: '16px' } }>
+						<ButtonGroup aria-label={ __( 'Layout', 'relatewp' ) }>
+							{ LAYOUT_OPTIONS.map( ( opt ) => (
+								<Button
+									key={ opt.value }
+									icon={ opt.icon }
+									label={ opt.label }
+									isPressed={ layout === opt.value }
+									onClick={ () => setAttributes( { layout: opt.value } ) }
+								/>
+							) ) }
+						</ButtonGroup>
+						{ layout === 'grid' && (
+							<>
+								<RangeControl
+									label={ __( 'Columns', 'relatewp' ) }
+									value={ columns }
+									onChange={ ( value ) => setAttributes( { columns: value } ) }
+									min={ 2 }
+									max={ 4 }
+									__nextHasNoMarginBottom
+								/>
+								<ToggleControl
+									label={ __( 'Show thumbnail', 'relatewp' ) }
+									checked={ showThumbnail }
+									onChange={ ( value ) => setAttributes( { showThumbnail: value } ) }
+									__nextHasNoMarginBottom
+								/>
+							</>
+						) }
+						{ layout !== 'inline' && (
+							<ToggleControl
+								label={ __( 'Show excerpt', 'relatewp' ) }
+								checked={ showExcerpt }
+								onChange={ ( value ) => setAttributes( { showExcerpt: value } ) }
+								__nextHasNoMarginBottom
+							/>
+						) }
+					</div>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...innerBlocksProps } />

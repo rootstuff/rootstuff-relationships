@@ -10,6 +10,7 @@ export default function RelationshipPanel( {
 	side,
 	label,
 	postType,
+	sortable,
 } ) {
 	const postId = useSelect(
 		( select ) => select( 'core/editor' ).getCurrentPostId(),
@@ -69,6 +70,7 @@ export default function RelationshipPanel( {
 				relType={ relType }
 				side={ side }
 				postId={ postId }
+				sortable={ sortable }
 			/>
 			<RelationshipSelector
 				relType={ relType }

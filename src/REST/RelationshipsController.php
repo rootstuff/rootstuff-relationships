@@ -59,7 +59,8 @@ final class RelationshipsController extends WP_REST_Controller {
 
 		if ( null === $definition ) {
 			return new WP_REST_Response(
-				[ 'message' => sprintf( 'Relationship type "%s" not found.', $rel_type ) ],
+				/* translators: %s: relationship type key */
+				[ 'message' => sprintf( __( 'Relationship type "%s" not found.', 'relatewp' ), $rel_type ) ],
 				404
 			);
 		}

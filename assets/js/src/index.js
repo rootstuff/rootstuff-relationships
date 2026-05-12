@@ -15,6 +15,7 @@ if ( panels.length > 0 ) {
 						side={ panel.side }
 						label={ panel.label }
 						postType={ panel.postType }
+						sortable={ panel.sortable }
 					/>
 				) ) }
 			</>
