@@ -28,12 +28,9 @@ final class SearchController extends WP_REST_Controller {
 							return Registry::exists( $value );
 						},
 					],
-					'direction' => [
+					'side' => [
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_key',
-						'validate_callback' => function ( $value ) {
-							return in_array( $value, [ 'from', 'to' ], true );
-						},
 					],
 					's' => [
 						'required'          => true,
@@ -63,17 +60,18 @@ final class SearchController extends WP_REST_Controller {
 	/**
 	 * Search for posts to connect.
 	 *
-	 * When direction is 'from', the user is on the "from" side and looking for
-	 * "to" side posts to connect. Vice versa for 'to'.
+	 * The `side` parameter identifies which side the current object is on.
+	 * The search returns posts from the opposite side.
 	 */
 	public function search( $request ) {
-		$rel_type  = $request->get_param( 'rel_type' );
-		$direction = $request->get_param( 'direction' );
-		$search    = $request->get_param( 's' );
-		$exclude   = array_map( 'absint', $request->get_param( 'exclude' ) );
-		$per_page  = (int) $request->get_param( 'per_page' );
+		$rel_type = $request->get_param( 'rel_type' );
+		$side     = $request->get_param( 'side' );
+		$search   = $request->get_param( 's' );
+		$exclude  = array_map( 'absint', $request->get_param( 'exclude' ) );
+		$per_page = (int) $request->get_param( 'per_page' );
 
 		$definition = Registry::get( $rel_type );
+		$direction  = Registry::resolveSide( $rel_type, null, $side );
 
 		$target_side = ( 'from' === $direction ) ? 'to' : 'from';
 		$post_type   = $definition[ $target_side ]['post_type'] ?? 'post';
@@ -92,9 +90,9 @@ final class SearchController extends WP_REST_Controller {
 		 *
 		 * @param array  $query_args WP_Query arguments.
 		 * @param string $rel_type   Relationship type key.
-		 * @param string $direction  Direction of the search.
+		 * @param string $side       Side identifier (post type or role).
 		 */
-		$query_args = apply_filters( 'rs_search_query_args', $query_args, $rel_type, $direction );
+		$query_args = apply_filters( 'rs_search_query_args', $query_args, $rel_type, $side );
 
 		$posts   = get_posts( $query_args );
 		$results = [];

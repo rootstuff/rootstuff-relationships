@@ -16,7 +16,7 @@ use Rootstuff\Relationships\Registry;
  *       'rs_related' => [
  *           'rel_type'   => 'author_books',
  *           'object_id'  => 42,
- *           'direction'  => 'from',
+ *           'side'       => 'author',
  *       ],
  *       'orderby' => 'rs_sort_order',
  *       'order'   => 'ASC',
@@ -41,17 +41,26 @@ final class QueryIntegration {
 
 		$rel_type  = sanitize_key( $rs_related['rel_type'] ?? '' );
 		$object_id = absint( $rs_related['object_id'] ?? 0 );
-		$direction = sanitize_key( $rs_related['direction'] ?? 'from' );
+		$side      = isset( $rs_related['side'] ) ? sanitize_key( $rs_related['side'] ) : null;
 
 		if ( ! $rel_type || ! $object_id || ! Registry::exists( $rel_type ) ) {
 			return $clauses;
 		}
 
+		$direction = Registry::resolveSide( $rel_type, $object_id, $side );
+
 		global $wpdb;
 		$rel_table = Tables::relationships();
 		$alias     = 'rs_rel';
 
-		if ( 'from' === $direction ) {
+		if ( 'both' === $direction ) {
+			$clauses['join'] .= $wpdb->prepare(
+				" INNER JOIN {$rel_table} AS {$alias} ON ({$alias}.rel_type = %s AND (({$alias}.from_object_id = %d AND {$wpdb->posts}.ID = {$alias}.to_object_id) OR ({$alias}.to_object_id = %d AND {$wpdb->posts}.ID = {$alias}.from_object_id)))", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$rel_type,
+				$object_id,
+				$object_id
+			);
+		} elseif ( 'from' === $direction ) {
 			$clauses['join'] .= $wpdb->prepare(
 				" INNER JOIN {$rel_table} AS {$alias} ON ({$wpdb->posts}.ID = {$alias}.to_object_id AND {$alias}.rel_type = %s AND {$alias}.from_object_id = %d)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				$rel_type,

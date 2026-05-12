@@ -4,37 +4,37 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME } from './store';
 
-export default function RelationshipList( { relType, direction, postId } ) {
+export default function RelationshipList( { relType, side, postId } ) {
 	const { removeConnection, saveConnections } = useDispatch( STORE_NAME );
 
 	const connections = useSelect(
 		( select ) =>
-			select( STORE_NAME ).getConnections( relType, postId, direction ),
-		[ relType, postId, direction ]
+			select( STORE_NAME ).getConnections( relType, postId, side ),
+		[ relType, postId, side ]
 	);
 
 	const isSaving = useSelect(
 		( select ) =>
-			select( STORE_NAME ).isSaving( relType, postId, direction ),
-		[ relType, postId, direction ]
+			select( STORE_NAME ).isSaving( relType, postId, side ),
+		[ relType, postId, side ]
 	);
 
 	const isDirty = useSelect(
 		( select ) =>
-			select( STORE_NAME ).isDirty( relType, postId, direction ),
-		[ relType, postId, direction ]
+			select( STORE_NAME ).isDirty( relType, postId, side ),
+		[ relType, postId, side ]
 	);
 
 	const handleRemove = useCallback(
 		( itemId ) => {
-			removeConnection( relType, postId, direction, itemId );
+			removeConnection( relType, postId, side, itemId );
 		},
-		[ relType, postId, direction, removeConnection ]
+		[ relType, postId, side, removeConnection ]
 	);
 
 	const handleSave = useCallback( () => {
-		saveConnections( relType, postId, direction );
-	}, [ relType, postId, direction, saveConnections ] );
+		saveConnections( relType, postId, side );
+	}, [ relType, postId, side, saveConnections ] );
 
 	if ( connections.length === 0 ) {
 		return (

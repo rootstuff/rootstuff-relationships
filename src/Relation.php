@@ -105,16 +105,15 @@ final class Relation {
 	/**
 	 * Get related objects as WP_Post instances.
 	 *
-	 * @param string $rel_type  Relationship key.
-	 * @param int    $object_id The object to query from.
-	 * @param string $direction 'from' = get objects this is connected TO,
-	 *                          'to'   = get objects connected FROM this.
-	 * @param array  $args      Optional: post_status, orderby, order, limit.
+	 * @param string      $rel_type  Relationship key.
+	 * @param int         $object_id The object to query from.
+	 * @param string|null $side      Post type, role name, or null for auto-detect.
+	 * @param array       $args      Optional: post_status, orderby, order, limit.
 	 *
 	 * @return \WP_Post[]
 	 */
-	public static function get( string $rel_type, int $object_id, string $direction = 'from', array $args = [] ): array {
-		$ids = self::getIds( $rel_type, $object_id, $direction );
+	public static function get( string $rel_type, int $object_id, ?string $side = null, array $args = [] ): array {
+		$ids = self::getIds( $rel_type, $object_id, $side );
 
 		if ( empty( $ids ) ) {
 			return [];
@@ -137,14 +136,20 @@ final class Relation {
 	/**
 	 * Get related object IDs (lightweight, no hydration).
 	 *
-	 * @param string $rel_type  Relationship key.
-	 * @param int    $object_id The object to query from.
-	 * @param string $direction 'from' or 'to'.
+	 * @param string      $rel_type  Relationship key.
+	 * @param int         $object_id The object to query from.
+	 * @param string|null $side      Post type, role name, or null for auto-detect.
 	 *
 	 * @return int[]
 	 */
-	public static function getIds( string $rel_type, int $object_id, string $direction = 'from' ): array {
+	public static function getIds( string $rel_type, int $object_id, ?string $side = null ): array {
 		self::validate_rel_type( $rel_type );
+
+		$direction = Registry::resolveSide( $rel_type, $object_id, $side );
+
+		if ( 'both' === $direction ) {
+			return self::getIdsBoth( $rel_type, $object_id );
+		}
 
 		$cache_key = RelationshipCache::build_ids_key( $rel_type, $object_id, $direction );
 		$cached    = RelationshipCache::get( $cache_key );
@@ -175,6 +180,40 @@ final class Relation {
 		}
 
 		$ids = array_map( 'intval', $ids );
+
+		RelationshipCache::set( $cache_key, $ids );
+
+		return $ids;
+	}
+
+	/**
+	 * Get IDs from both directions for symmetric relationships.
+	 */
+	private static function getIdsBoth( string $rel_type, int $object_id ): array {
+		$cache_key = RelationshipCache::build_ids_key( $rel_type, $object_id, 'both' );
+		$cached    = RelationshipCache::get( $cache_key );
+
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
+		global $wpdb;
+		$table = Tables::relationships();
+
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT CASE WHEN from_object_id = %d THEN to_object_id ELSE from_object_id END AS related_id
+				FROM {$table}
+				WHERE rel_type = %s AND (from_object_id = %d OR to_object_id = %d)
+				ORDER BY sort_order ASC, id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$object_id,
+				$rel_type,
+				$object_id,
+				$object_id
+			)
+		);
+
+		$ids = array_values( array_unique( array_map( 'intval', $ids ) ) );
 
 		RelationshipCache::set( $cache_key, $ids );
 
@@ -241,15 +280,16 @@ final class Relation {
 	 *
 	 * Used by the Gutenberg sidebar to sync the full list on save.
 	 *
-	 * @param string $rel_type     Relationship key.
-	 * @param int    $object_id    Source object ID.
-	 * @param string $direction    'from' or 'to'.
-	 * @param int[]  $connected_ids Ordered list of IDs to connect.
+	 * @param string      $rel_type      Relationship key.
+	 * @param int         $object_id     Source object ID.
+	 * @param string|null $side          Post type, role name, or null for auto-detect.
+	 * @param int[]       $connected_ids Ordered list of IDs to connect.
 	 */
-	public static function sync( string $rel_type, int $object_id, string $direction, array $connected_ids ): void {
+	public static function sync( string $rel_type, int $object_id, ?string $side, array $connected_ids ): void {
 		self::validate_rel_type( $rel_type );
 
-		$current_ids = self::getIds( $rel_type, $object_id, $direction );
+		$direction   = Registry::resolveSide( $rel_type, $object_id, $side );
+		$current_ids = self::getIdsInternal( $rel_type, $object_id, $direction );
 		$new_ids     = array_map( 'intval', $connected_ids );
 
 		$to_remove = array_diff( $current_ids, $new_ids );
@@ -274,6 +314,46 @@ final class Relation {
 				self::update_sort_order( $rel_type, $object_id, $id, $direction, $order );
 			}
 		}
+	}
+
+	/**
+	 * Internal getIds that accepts a resolved 'from'/'to' direction.
+	 * Used by sync and cardinality enforcement where the direction is already known.
+	 */
+	private static function getIdsInternal( string $rel_type, int $object_id, string $direction ): array {
+		$cache_key = RelationshipCache::build_ids_key( $rel_type, $object_id, $direction );
+		$cached    = RelationshipCache::get( $cache_key );
+
+		if ( null !== $cached ) {
+			return $cached;
+		}
+
+		global $wpdb;
+		$table = Tables::relationships();
+
+		if ( 'from' === $direction ) {
+			$ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT to_object_id FROM {$table} WHERE rel_type = %s AND from_object_id = %d ORDER BY sort_order ASC, id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$rel_type,
+					$object_id
+				)
+			);
+		} else {
+			$ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT from_object_id FROM {$table} WHERE rel_type = %s AND to_object_id = %d ORDER BY sort_order ASC, id ASC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$rel_type,
+					$object_id
+				)
+			);
+		}
+
+		$ids = array_map( 'intval', $ids );
+
+		RelationshipCache::set( $cache_key, $ids );
+
+		return $ids;
 	}
 
 	/**
@@ -328,13 +408,13 @@ final class Relation {
 		$cardinality = $definition['cardinality'];
 
 		if ( 'one_to_one' === $cardinality ) {
-			$existing_from = self::getIds( $rel_type, $from_id, 'from' );
+			$existing_from = self::getIdsInternal( $rel_type, $from_id, 'from' );
 			if ( ! empty( $existing_from ) ) {
 				throw new InvalidArgumentException(
 					sprintf( 'Cardinality violation: "%s" is one-to-one, source %d already has a connection.', $rel_type, $from_id )
 				);
 			}
-			$existing_to = self::getIds( $rel_type, $to_id, 'to' );
+			$existing_to = self::getIdsInternal( $rel_type, $to_id, 'to' );
 			if ( ! empty( $existing_to ) ) {
 				throw new InvalidArgumentException(
 					sprintf( 'Cardinality violation: "%s" is one-to-one, target %d already has a connection.', $rel_type, $to_id )
@@ -343,7 +423,7 @@ final class Relation {
 		}
 
 		if ( 'one_to_many' === $cardinality ) {
-			$existing_to = self::getIds( $rel_type, $to_id, 'to' );
+			$existing_to = self::getIdsInternal( $rel_type, $to_id, 'to' );
 			if ( ! empty( $existing_to ) ) {
 				throw new InvalidArgumentException(
 					sprintf( 'Cardinality violation: "%s" is one-to-many, target %d already belongs to another source.', $rel_type, $to_id )

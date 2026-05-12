@@ -101,21 +101,41 @@ class RelationTest extends WP_UnitTestCase {
 		$this->assertFalse( $result );
 	}
 
-	public function test_get_ids(): void {
+	public function test_get_ids_by_post_type(): void {
 		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
 		Relation::connect( 'author_books', $this->author_id, $this->book_2_id );
 
-		$ids = Relation::getIds( 'author_books', $this->author_id, 'from' );
+		$ids = Relation::getIds( 'author_books', $this->author_id, 'author' );
 
 		$this->assertCount( 2, $ids );
 		$this->assertContains( $this->book_1_id, $ids );
 		$this->assertContains( $this->book_2_id, $ids );
 	}
 
-	public function test_get_ids_reverse_direction(): void {
+	public function test_get_ids_auto_detect(): void {
+		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
+		Relation::connect( 'author_books', $this->author_id, $this->book_2_id );
+
+		$ids = Relation::getIds( 'author_books', $this->author_id );
+
+		$this->assertCount( 2, $ids );
+		$this->assertContains( $this->book_1_id, $ids );
+		$this->assertContains( $this->book_2_id, $ids );
+	}
+
+	public function test_get_ids_reverse_side(): void {
 		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
 
-		$ids = Relation::getIds( 'author_books', $this->book_1_id, 'to' );
+		$ids = Relation::getIds( 'author_books', $this->book_1_id, 'book' );
+
+		$this->assertCount( 1, $ids );
+		$this->assertContains( $this->author_id, $ids );
+	}
+
+	public function test_get_ids_reverse_auto_detect(): void {
+		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
+
+		$ids = Relation::getIds( 'author_books', $this->book_1_id );
 
 		$this->assertCount( 1, $ids );
 		$this->assertContains( $this->author_id, $ids );
@@ -124,11 +144,20 @@ class RelationTest extends WP_UnitTestCase {
 	public function test_get_returns_posts(): void {
 		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
 
-		$posts = Relation::get( 'author_books', $this->author_id, 'from' );
+		$posts = Relation::get( 'author_books', $this->author_id, 'author' );
 
 		$this->assertCount( 1, $posts );
 		$this->assertSame( $this->book_1_id, $posts[0]->ID );
 		$this->assertSame( 'Book One', $posts[0]->post_title );
+	}
+
+	public function test_get_auto_detect(): void {
+		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
+
+		$posts = Relation::get( 'author_books', $this->author_id );
+
+		$this->assertCount( 1, $posts );
+		$this->assertSame( $this->book_1_id, $posts[0]->ID );
 	}
 
 	public function test_disconnect_all(): void {
@@ -138,7 +167,7 @@ class RelationTest extends WP_UnitTestCase {
 		$deleted = Relation::disconnectAll( $this->author_id );
 
 		$this->assertSame( 2, $deleted );
-		$this->assertEmpty( Relation::getIds( 'author_books', $this->author_id, 'from' ) );
+		$this->assertEmpty( Relation::getIds( 'author_books', $this->author_id, 'author' ) );
 	}
 
 	public function test_unregistered_type_throws(): void {
@@ -162,9 +191,9 @@ class RelationTest extends WP_UnitTestCase {
 	public function test_sync_adds_and_removes(): void {
 		Relation::connect( 'author_books', $this->author_id, $this->book_1_id );
 
-		Relation::sync( 'author_books', $this->author_id, 'from', [ $this->book_2_id ] );
+		Relation::sync( 'author_books', $this->author_id, 'author', [ $this->book_2_id ] );
 
-		$ids = Relation::getIds( 'author_books', $this->author_id, 'from' );
+		$ids = Relation::getIds( 'author_books', $this->author_id, 'author' );
 		$this->assertCount( 1, $ids );
 		$this->assertContains( $this->book_2_id, $ids );
 		$this->assertNotContains( $this->book_1_id, $ids );
@@ -174,7 +203,7 @@ class RelationTest extends WP_UnitTestCase {
 		Relation::connect( 'author_books', $this->author_id, $this->book_2_id, [ 'sort_order' => 0 ] );
 		Relation::connect( 'author_books', $this->author_id, $this->book_1_id, [ 'sort_order' => 1 ] );
 
-		$ids = Relation::getIds( 'author_books', $this->author_id, 'from' );
+		$ids = Relation::getIds( 'author_books', $this->author_id, 'author' );
 
 		$this->assertSame( [ $this->book_2_id, $this->book_1_id ], $ids );
 	}

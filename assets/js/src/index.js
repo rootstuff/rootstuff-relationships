@@ -10,9 +10,9 @@ if ( panels.length > 0 ) {
 			<>
 				{ panels.map( ( panel ) => (
 					<RelationshipPanel
-						key={ `${ panel.relType }-${ panel.direction }` }
+						key={ `${ panel.relType }-${ panel.side }` }
 						relType={ panel.relType }
-						direction={ panel.direction }
+						side={ panel.side }
 						label={ panel.label }
 						postType={ panel.postType }
 					/>

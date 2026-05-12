@@ -20,6 +20,8 @@ final class Registry {
 		'cardinality'   => 'many_to_many',
 		'bidirectional' => true,
 		'labels'        => [ 'from' => '', 'to' => '' ],
+		'roles'         => [],
+		'symmetric'     => false,
 		'sortable'      => false,
 		'admin_column'  => false,
 		'meta_fields'   => [],
@@ -108,6 +110,81 @@ final class Registry {
 	}
 
 	/**
+	 * Resolve a side hint to the internal 'from' or 'to' direction.
+	 *
+	 * Accepts a post type name, a role name, or null for auto-detection.
+	 * Returns 'from', 'to', or 'both' (for symmetric same-type relationships).
+	 *
+	 * @param string      $rel_type  Registered relationship key.
+	 * @param int|null    $object_id Object ID for auto-detection (uses get_post_type).
+	 * @param string|null $side      Post type, role name, or null.
+	 *
+	 * @return string 'from', 'to', or 'both'.
+	 *
+	 * @throws InvalidArgumentException When the side cannot be resolved.
+	 */
+	public static function resolveSide( string $rel_type, ?int $object_id = null, ?string $side = null ): string {
+		$definition = self::get( $rel_type );
+
+		if ( null === $definition ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Relationship type "%s" is not registered.', $rel_type )
+			);
+		}
+
+		$from_type  = $definition['from']['post_type'] ?? '';
+		$to_type    = $definition['to']['post_type'] ?? '';
+		$roles      = $definition['roles'] ?? [];
+		$symmetric  = $definition['symmetric'] ?? false;
+		$same_type  = ( $from_type === $to_type && '' !== $from_type );
+
+		if ( null === $side && null !== $object_id ) {
+			$side = get_post_type( $object_id );
+			if ( false === $side ) {
+				$side = null;
+			}
+		}
+
+		if ( null === $side ) {
+			if ( $symmetric ) {
+				return 'both';
+			}
+			throw new InvalidArgumentException(
+				sprintf( 'Cannot auto-detect side for relationship "%s": no object ID or post type provided.', $rel_type )
+			);
+		}
+
+		if ( ! empty( $roles ) ) {
+			if ( isset( $roles[0] ) && $roles[0] === $side ) {
+				return 'from';
+			}
+			if ( isset( $roles[1] ) && $roles[1] === $side ) {
+				return 'to';
+			}
+		}
+
+		if ( $same_type && empty( $roles ) ) {
+			if ( $symmetric ) {
+				return 'both';
+			}
+			throw new InvalidArgumentException(
+				sprintf( 'Ambiguous side for same-type relationship "%s". Provide roles or mark as symmetric.', $rel_type )
+			);
+		}
+
+		if ( $side === $from_type ) {
+			return 'from';
+		}
+		if ( $side === $to_type ) {
+			return 'to';
+		}
+
+		throw new InvalidArgumentException(
+			sprintf( 'Cannot resolve side "%s" for relationship "%s".', $side, $rel_type )
+		);
+	}
+
+	/**
 	 * Reset the registry. Intended for testing only.
 	 *
 	 * @internal
@@ -157,6 +234,37 @@ final class Registry {
 						$side,
 						$object_type
 					)
+				);
+			}
+		}
+
+		$from_type = $definition['from']['post_type'] ?? '';
+		$to_type   = $definition['to']['post_type'] ?? '';
+		$roles     = $definition['roles'] ?? [];
+		$symmetric = $definition['symmetric'] ?? false;
+		$same_type = ( $from_type === $to_type && '' !== $from_type );
+
+		if ( $symmetric && ! $same_type ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Relationship "%s" cannot be symmetric when post types differ.', $key )
+			);
+		}
+
+		if ( $same_type && ! $symmetric && empty( $roles ) ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Same-type relationship "%s" requires roles or symmetric flag.', $key )
+			);
+		}
+
+		if ( ! empty( $roles ) ) {
+			if ( ! is_array( $roles ) || count( $roles ) !== 2 ) {
+				throw new InvalidArgumentException(
+					sprintf( 'Relationship "%s" roles must be an array of exactly two strings.', $key )
+				);
+			}
+			if ( $roles[0] === $roles[1] ) {
+				throw new InvalidArgumentException(
+					sprintf( 'Relationship "%s" role names must be distinct.', $key )
 				);
 			}
 		}

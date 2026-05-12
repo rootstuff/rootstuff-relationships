@@ -7,7 +7,7 @@ import { STORE_NAME } from './store';
 
 export default function RelationshipPanel( {
 	relType,
-	direction,
+	side,
 	label,
 	postType,
 } ) {
@@ -20,15 +20,15 @@ export default function RelationshipPanel( {
 
 	const isDirty = useSelect(
 		( select ) =>
-			select( STORE_NAME ).isDirty( relType, postId, direction ),
-		[ relType, postId, direction ]
+			select( STORE_NAME ).isDirty( relType, postId, side ),
+		[ relType, postId, side ]
 	);
 
 	useEffect( () => {
 		if ( postId ) {
-			fetchConnections( relType, postId, direction );
+			fetchConnections( relType, postId, side );
 		}
-	}, [ postId, relType, direction, fetchConnections ] );
+	}, [ postId, relType, side, fetchConnections ] );
 
 	useEffect( () => {
 		if ( ! postId ) {
@@ -44,7 +44,7 @@ export default function RelationshipPanel( {
 
 			if ( isSavingPost && ! isAutosaving && ! wasSaving && isDirty ) {
 				wasSaving = true;
-				saveConnections( relType, postId, direction );
+				saveConnections( relType, postId, side );
 			}
 
 			if ( ! isSavingPost ) {
@@ -53,7 +53,7 @@ export default function RelationshipPanel( {
 		} );
 
 		return unsubscribe;
-	}, [ postId, relType, direction, isDirty, saveConnections ] );
+	}, [ postId, relType, side, isDirty, saveConnections ] );
 
 	if ( ! postId ) {
 		return null;
@@ -61,18 +61,18 @@ export default function RelationshipPanel( {
 
 	return (
 		<PluginDocumentSettingPanel
-			name={ `rs-rel-${ relType }-${ direction }` }
+			name={ `rs-rel-${ relType }-${ side }` }
 			title={ label }
 			className="rs-relationship-panel"
 		>
 			<RelationshipList
 				relType={ relType }
-				direction={ direction }
+				side={ side }
 				postId={ postId }
 			/>
 			<RelationshipSelector
 				relType={ relType }
-				direction={ direction }
+				side={ side }
 				postId={ postId }
 			/>
 		</PluginDocumentSettingPanel>

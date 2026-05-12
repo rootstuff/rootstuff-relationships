@@ -74,7 +74,7 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 			'rs_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->author_id,
-				'direction' => 'from',
+				'side'      => 'author',
 			],
 		] );
 
@@ -86,13 +86,29 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 		$this->assertNotContains( $this->unrelated_id, $ids );
 	}
 
+	public function test_wp_query_auto_detect(): void {
+		$query = new WP_Query( [
+			'post_type'  => 'book',
+			'rs_related' => [
+				'rel_type'  => 'author_books',
+				'object_id' => $this->author_id,
+			],
+		] );
+
+		$this->assertSame( 2, $query->found_posts );
+
+		$ids = wp_list_pluck( $query->posts, 'ID' );
+		$this->assertContains( $this->book_1_id, $ids );
+		$this->assertContains( $this->book_2_id, $ids );
+	}
+
 	public function test_wp_query_sort_order(): void {
 		$query = new WP_Query( [
 			'post_type'  => 'book',
 			'rs_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->author_id,
-				'direction' => 'from',
+				'side'      => 'author',
 			],
 			'orderby' => 'rs_sort_order',
 			'order'   => 'ASC',
@@ -103,13 +119,13 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 		$this->assertSame( $this->book_1_id, $ids[1] );
 	}
 
-	public function test_wp_query_reverse_direction(): void {
+	public function test_wp_query_reverse_side(): void {
 		$query = new WP_Query( [
 			'post_type'  => 'author',
 			'rs_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->book_1_id,
-				'direction' => 'to',
+				'side'      => 'book',
 			],
 		] );
 

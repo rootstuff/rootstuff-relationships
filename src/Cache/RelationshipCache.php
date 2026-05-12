@@ -27,8 +27,10 @@ final class RelationshipCache {
 	public static function flush_for_object( string $rel_type, int $object_id ): void {
 		self::delete( self::build_key( $rel_type, $object_id, 'from' ) );
 		self::delete( self::build_key( $rel_type, $object_id, 'to' ) );
+		self::delete( self::build_key( $rel_type, $object_id, 'both' ) );
 		self::delete( self::build_ids_key( $rel_type, $object_id, 'from' ) );
 		self::delete( self::build_ids_key( $rel_type, $object_id, 'to' ) );
+		self::delete( self::build_ids_key( $rel_type, $object_id, 'both' ) );
 	}
 
 	public static function build_key( string $rel_type, int $object_id, string $direction ): string {

@@ -6,7 +6,7 @@ import { STORE_NAME } from './store';
 
 export default function RelationshipSelector( {
 	relType,
-	direction,
+	side,
 	postId,
 } ) {
 	const [ query, setQuery ] = useState( '' );
@@ -16,8 +16,8 @@ export default function RelationshipSelector( {
 
 	const connections = useSelect(
 		( select ) =>
-			select( STORE_NAME ).getConnections( relType, postId, direction ),
-		[ relType, postId, direction ]
+			select( STORE_NAME ).getConnections( relType, postId, side ),
+		[ relType, postId, side ]
 	);
 
 	const searchResults = useSelect(
@@ -25,15 +25,15 @@ export default function RelationshipSelector( {
 			select( STORE_NAME ).getSearchResults(
 				relType,
 				postId,
-				direction
+				side
 			),
-		[ relType, postId, direction ]
+		[ relType, postId, side ]
 	);
 
 	const isSearching = useSelect(
 		( select ) =>
-			select( STORE_NAME ).isSearching( relType, postId, direction ),
-		[ relType, postId, direction ]
+			select( STORE_NAME ).isSearching( relType, postId, side ),
+		[ relType, postId, side ]
 	);
 
 	const connectedIds = connections.map( ( c ) => c.connected_object.id );
@@ -54,13 +54,13 @@ export default function RelationshipSelector( {
 				searchPosts(
 					relType,
 					postId,
-					direction,
+					side,
 					value,
 					connectedIds
 				);
 			}, 300 );
 		},
-		[ relType, postId, direction, connectedIds, searchPosts ]
+		[ relType, postId, side, connectedIds, searchPosts ]
 	);
 
 	useEffect( () => {
@@ -73,10 +73,10 @@ export default function RelationshipSelector( {
 
 	const handleSelect = useCallback(
 		( item ) => {
-			addConnection( relType, postId, direction, item );
+			addConnection( relType, postId, side, item );
 			setQuery( '' );
 		},
-		[ relType, postId, direction, addConnection ]
+		[ relType, postId, side, addConnection ]
 	);
 
 	const filteredResults = searchResults.filter(

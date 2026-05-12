@@ -11,8 +11,8 @@ const DEFAULT_STATE = {
 	dirty: {},
 };
 
-function buildKey( relType, objectId, direction ) {
-	return `${ relType }:${ objectId }:${ direction }`;
+function buildKey( relType, objectId, side ) {
+	return `${ relType }:${ objectId }:${ side }`;
 }
 
 const store = createReduxStore( STORE_NAME, {
@@ -22,7 +22,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				return {
 					...state,
@@ -38,7 +38,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				const existing = state.connections[ key ] || [];
 				if ( existing.find( ( c ) => c.connected_object.id === action.item.id ) ) {
@@ -64,7 +64,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				const list = ( state.connections[ key ] || [] ).filter(
 					( c ) => c.connected_object.id !== action.itemId
@@ -80,7 +80,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				return {
 					...state,
@@ -92,7 +92,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				return {
 					...state,
@@ -107,7 +107,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				return {
 					...state,
@@ -119,7 +119,7 @@ const store = createReduxStore( STORE_NAME, {
 				const key = buildKey(
 					action.relType,
 					action.objectId,
-					action.direction
+					action.side
 				);
 				return {
 					...state,
@@ -133,40 +133,41 @@ const store = createReduxStore( STORE_NAME, {
 	},
 
 	actions: {
-		setConnections( relType, objectId, direction, connections ) {
+		setConnections( relType, objectId, side, connections ) {
 			return {
 				type: 'SET_CONNECTIONS',
 				relType,
 				objectId,
-				direction,
+				side,
 				connections,
 			};
 		},
 
-		addConnection( relType, objectId, direction, item ) {
-			return { type: 'ADD_CONNECTION', relType, objectId, direction, item };
+		addConnection( relType, objectId, side, item ) {
+			return { type: 'ADD_CONNECTION', relType, objectId, side, item };
 		},
 
-		removeConnection( relType, objectId, direction, itemId ) {
+		removeConnection( relType, objectId, side, itemId ) {
 			return {
 				type: 'REMOVE_CONNECTION',
 				relType,
 				objectId,
-				direction,
+				side,
 				itemId,
 			};
 		},
 
-		fetchConnections( relType, objectId, direction ) {
+		fetchConnections( relType, objectId, side ) {
 			return async ( { dispatch } ) => {
 				try {
+					const params = side ? `?side=${ side }` : '';
 					const data = await apiFetch( {
-						path: `/rootstuff-rel/v1/connections/${ relType }/${ objectId }?direction=${ direction }`,
+						path: `/rootstuff-rel/v1/connections/${ relType }/${ objectId }${ params }`,
 					} );
 					dispatch.setConnections(
 						relType,
 						objectId,
-						direction,
+						side,
 						data.connections || []
 					);
 				} catch ( error ) {
@@ -176,19 +177,19 @@ const store = createReduxStore( STORE_NAME, {
 			};
 		},
 
-		searchPosts( relType, objectId, direction, query, exclude = [] ) {
+		searchPosts( relType, objectId, side, query, exclude = [] ) {
 			return async ( { dispatch } ) => {
 				dispatch( {
 					type: 'SET_SEARCHING',
 					relType,
 					objectId,
-					direction,
+					side,
 					value: true,
 				} );
 				try {
 					const params = new URLSearchParams( {
 						rel_type: relType,
-						direction,
+						side,
 						s: query,
 						per_page: '10',
 					} );
@@ -201,7 +202,7 @@ const store = createReduxStore( STORE_NAME, {
 						type: 'SET_SEARCH_RESULTS',
 						relType,
 						objectId,
-						direction,
+						side,
 						results,
 					} );
 				} catch ( error ) {
@@ -212,24 +213,23 @@ const store = createReduxStore( STORE_NAME, {
 						type: 'SET_SEARCHING',
 						relType,
 						objectId,
-						direction,
+						side,
 						value: false,
 					} );
 				}
 			};
 		},
 
-		saveConnections( relType, objectId, direction ) {
+		saveConnections( relType, objectId, side ) {
 			return async ( { dispatch, select } ) => {
-				const key = buildKey( relType, objectId, direction );
-				const connections = select.getConnections( relType, objectId, direction );
+				const connections = select.getConnections( relType, objectId, side );
 				const connectedIds = connections.map( ( c ) => c.connected_object.id );
 
 				dispatch( {
 					type: 'SET_SAVING',
 					relType,
 					objectId,
-					direction,
+					side,
 					value: true,
 				} );
 
@@ -238,11 +238,11 @@ const store = createReduxStore( STORE_NAME, {
 						path: `/rootstuff-rel/v1/connections/${ relType }/${ objectId }/sync`,
 						method: 'POST',
 						data: {
-							direction,
+							side,
 							connected_ids: connectedIds,
 						},
 					} );
-					dispatch( { type: 'MARK_CLEAN', relType, objectId, direction } );
+					dispatch( { type: 'MARK_CLEAN', relType, objectId, side } );
 				} catch ( error ) {
 					// eslint-disable-next-line no-console
 					console.error( 'RS Relationships: save failed', error );
@@ -251,7 +251,7 @@ const store = createReduxStore( STORE_NAME, {
 						type: 'SET_SAVING',
 						relType,
 						objectId,
-						direction,
+						side,
 						value: false,
 					} );
 				}
@@ -260,28 +260,28 @@ const store = createReduxStore( STORE_NAME, {
 	},
 
 	selectors: {
-		getConnections( state, relType, objectId, direction ) {
-			const key = buildKey( relType, objectId, direction );
+		getConnections( state, relType, objectId, side ) {
+			const key = buildKey( relType, objectId, side );
 			return state.connections[ key ] || [];
 		},
 
-		isSearching( state, relType, objectId, direction ) {
-			const key = buildKey( relType, objectId, direction );
+		isSearching( state, relType, objectId, side ) {
+			const key = buildKey( relType, objectId, side );
 			return state.searching[ key ] || false;
 		},
 
-		getSearchResults( state, relType, objectId, direction ) {
-			const key = buildKey( relType, objectId, direction );
+		getSearchResults( state, relType, objectId, side ) {
+			const key = buildKey( relType, objectId, side );
 			return state.searchResults[ key ] || [];
 		},
 
-		isSaving( state, relType, objectId, direction ) {
-			const key = buildKey( relType, objectId, direction );
+		isSaving( state, relType, objectId, side ) {
+			const key = buildKey( relType, objectId, side );
 			return state.saving[ key ] || false;
 		},
 
-		isDirty( state, relType, objectId, direction ) {
-			const key = buildKey( relType, objectId, direction );
+		isDirty( state, relType, objectId, side ) {
+			const key = buildKey( relType, objectId, side );
 			return state.dirty[ key ] || false;
 		},
 	},

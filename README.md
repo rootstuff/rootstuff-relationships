@@ -55,6 +55,22 @@ add_action('rs_relationships_init', function () {
 
 All relationships are bidirectional by default.
 
+### Same-Type Relationships
+
+When both sides share the same post type, you must either define **roles** (for directional relationships) or mark the relationship as **symmetric**:
+
+```php
+// Directional: parent/child pages
+Schema::belongsToMany('post', 'post', 'related_posts', [
+    'roles' => ['source', 'related'],
+]);
+
+// Symmetric: related posts (direction doesn't matter)
+Schema::belongsToMany('post', 'post', 'similar_posts', [
+    'symmetric' => true,
+]);
+```
+
 ## PHP API
 
 The `Relation` class provides the core CRUD operations:
@@ -71,22 +87,34 @@ Relation::disconnect('resource_posts', $resource_id, $post_id);
 // Check if a connection exists
 Relation::exists('resource_posts', $resource_id, $post_id);
 
-// Get related posts as WP_Post objects
-$posts = Relation::get('resource_posts', $resource_id, 'from');
+// Get related posts — auto-detects which side you're on
+$posts = Relation::get('resource_posts', $post_id);
+
+// Explicit post type (zero-overhead, skips auto-detect)
+$resources = Relation::get('resource_posts', $post_id, 'post');
 
 // Get related IDs only (lightweight, cached)
-$ids = Relation::getIds('resource_posts', $resource_id, 'from');
+$ids = Relation::getIds('resource_posts', $resource_id);
 
 // Sync: replace all connections with a new ordered set
-Relation::sync('resource_posts', $resource_id, 'from', [10, 23, 45]);
+Relation::sync('resource_posts', $resource_id, 'resource', [10, 23, 45]);
 ```
 
-### Direction
+### Side Resolution
 
-The `direction` parameter controls which side of the relationship you're querying:
+The optional `$side` parameter tells the plugin which side of the relationship your object is on. It accepts:
 
-- `'from'` — get objects this ID is connected **to** (default)
-- `'to'` — get objects connected **from** this ID
+- **A post type name** — `'post'`, `'resource'`, `'author'`, etc.
+- **A role name** — for same-type relationships with roles
+- **`null`** (default) — auto-detects via `get_post_type($object_id)`
+
+For same-type relationships with roles:
+
+```php
+$related = Relation::get('related_posts', $post_id, 'source');
+```
+
+For symmetric relationships, no side is needed — results from both directions are merged automatically.
 
 ## WP_Query Integration
 
@@ -98,7 +126,7 @@ $related = new WP_Query([
     'rs_related' => [
         'rel_type'  => 'author_books',
         'object_id' => $author_id,
-        'direction' => 'from',
+        'side'      => 'author',    // optional, auto-detects if omitted
     ],
     'orderby' => 'rs_sort_order',
     'order'   => 'ASC',
@@ -115,10 +143,10 @@ Endpoints are registered under `/wp-json/rootstuff-rel/v1/`:
 | `/connections/{rel_type}/{object_id}` | GET | Get connections for an object |
 | `/connections/{rel_type}` | POST | Create a connection |
 | `/connections/{rel_type}/{from_id}/{to_id}` | DELETE | Remove a connection |
-| `/connections/{rel_type}/sync` | POST | Sync (replace) all connections |
+| `/connections/{rel_type}/{object_id}/sync` | POST | Sync (replace) all connections |
 | `/search` | GET | Search posts by type for the editor selector |
 
-All mutation endpoints require `edit_posts` capability.
+GET and sync endpoints accept a `side` parameter (post type or role name). All mutation endpoints require `edit_posts` capability.
 
 ## Gutenberg Integration
 

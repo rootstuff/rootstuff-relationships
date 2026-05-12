@@ -42,11 +42,10 @@ final class ConnectionsController extends WP_REST_Controller {
 				'args'                => [
 					'rel_type'  => $rel_type_arg,
 					'object_id' => $id_arg,
-					'direction' => [
-						'default'           => 'from',
-						'sanitize_callback' => 'sanitize_key',
-						'validate_callback' => function ( $value ) {
-							return in_array( $value, [ 'from', 'to' ], true );
+					'side' => [
+						'default'           => null,
+						'sanitize_callback' => function ( $value ) {
+							return null === $value ? null : sanitize_key( $value );
 						},
 					],
 				],
@@ -94,12 +93,9 @@ final class ConnectionsController extends WP_REST_Controller {
 				'args'                => [
 					'rel_type'      => $rel_type_arg,
 					'object_id'     => $id_arg,
-					'direction'     => [
+					'side'          => [
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_key',
-						'validate_callback' => function ( $value ) {
-							return in_array( $value, [ 'from', 'to' ], true );
-						},
 					],
 					'connected_ids' => [
 						'required' => true,
@@ -129,14 +125,14 @@ final class ConnectionsController extends WP_REST_Controller {
 	public function get_connections( $request ) {
 		$rel_type  = $request->get_param( 'rel_type' );
 		$object_id = (int) $request->get_param( 'object_id' );
-		$direction = $request->get_param( 'direction' );
+		$side      = $request->get_param( 'side' );
 
-		$posts = Relation::get( $rel_type, $object_id, $direction, [
+		$posts = Relation::get( $rel_type, $object_id, $side, [
 			'post_status' => [ 'publish', 'draft', 'pending', 'private' ],
 		] );
 
 		$connections = [];
-		$ids         = Relation::getIds( $rel_type, $object_id, $direction );
+		$ids         = Relation::getIds( $rel_type, $object_id, $side );
 
 		foreach ( $posts as $post ) {
 			$connections[] = [
@@ -155,7 +151,7 @@ final class ConnectionsController extends WP_REST_Controller {
 		return new WP_REST_Response( [
 			'rel_type'    => $rel_type,
 			'object_id'   => $object_id,
-			'direction'   => $direction,
+			'side'        => $side,
 			'connections' => $connections,
 			'total'       => count( $connections ),
 		], 200 );
@@ -216,21 +212,21 @@ final class ConnectionsController extends WP_REST_Controller {
 	public function sync_connections( $request ) {
 		$rel_type      = $request->get_param( 'rel_type' );
 		$object_id     = (int) $request->get_param( 'object_id' );
-		$direction     = $request->get_param( 'direction' );
+		$side          = $request->get_param( 'side' );
 		$connected_ids = $request->get_param( 'connected_ids' );
 
 		try {
-			Relation::sync( $rel_type, $object_id, $direction, $connected_ids );
+			Relation::sync( $rel_type, $object_id, $side, $connected_ids );
 		} catch ( \InvalidArgumentException $e ) {
 			return new WP_Error( 'rs_sync_error', $e->getMessage(), [ 'status' => 400 ] );
 		}
 
-		$updated_ids = Relation::getIds( $rel_type, $object_id, $direction );
+		$updated_ids = Relation::getIds( $rel_type, $object_id, $side );
 
 		return new WP_REST_Response( [
 			'rel_type'      => $rel_type,
 			'object_id'     => $object_id,
-			'direction'     => $direction,
+			'side'          => $side,
 			'connected_ids' => $updated_ids,
 		], 200 );
 	}

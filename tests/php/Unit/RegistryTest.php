@@ -174,4 +174,107 @@ class RegistryTest extends TestCase {
 		$this->assertSame( 'fallback_labels', $def['labels']['from'] );
 		$this->assertSame( 'fallback_labels', $def['labels']['to'] );
 	}
+
+	public function test_resolve_side_by_post_type(): void {
+		Registry::register( 'res_test', [
+			'from' => [ 'object_type' => 'post', 'post_type' => 'resource' ],
+			'to'   => [ 'object_type' => 'post', 'post_type' => 'post' ],
+		] );
+
+		$this->assertSame( 'from', Registry::resolveSide( 'res_test', null, 'resource' ) );
+		$this->assertSame( 'to', Registry::resolveSide( 'res_test', null, 'post' ) );
+	}
+
+	public function test_resolve_side_invalid_throws(): void {
+		Registry::register( 'res_inv', [
+			'from' => [ 'object_type' => 'post', 'post_type' => 'page' ],
+			'to'   => [ 'object_type' => 'post', 'post_type' => 'post' ],
+		] );
+
+		$this->expectException( InvalidArgumentException::class );
+		Registry::resolveSide( 'res_inv', null, 'nonexistent' );
+	}
+
+	public function test_same_type_without_roles_or_symmetric_throws(): void {
+		$this->expectException( InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'requires roles or symmetric' );
+
+		Registry::register( 'bad_same', [
+			'from' => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'to'   => [ 'object_type' => 'post', 'post_type' => 'post' ],
+		] );
+	}
+
+	public function test_symmetric_requires_same_type(): void {
+		$this->expectException( InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'cannot be symmetric' );
+
+		Registry::register( 'bad_sym', [
+			'from'      => [ 'object_type' => 'post', 'post_type' => 'a' ],
+			'to'        => [ 'object_type' => 'post', 'post_type' => 'b' ],
+			'symmetric' => true,
+		] );
+	}
+
+	public function test_roles_must_be_two_elements(): void {
+		$this->expectException( InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'exactly two' );
+
+		Registry::register( 'bad_roles', [
+			'from'  => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'to'    => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'roles' => [ 'only_one' ],
+		] );
+	}
+
+	public function test_roles_must_be_distinct(): void {
+		$this->expectException( InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'distinct' );
+
+		Registry::register( 'bad_dupe_roles', [
+			'from'  => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'to'    => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'roles' => [ 'same', 'same' ],
+		] );
+	}
+
+	public function test_resolve_side_by_role(): void {
+		Registry::register( 'rel_posts', [
+			'from'  => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'to'    => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'roles' => [ 'source', 'related' ],
+		] );
+
+		$this->assertSame( 'from', Registry::resolveSide( 'rel_posts', null, 'source' ) );
+		$this->assertSame( 'to', Registry::resolveSide( 'rel_posts', null, 'related' ) );
+	}
+
+	public function test_resolve_side_symmetric_returns_both(): void {
+		Registry::register( 'sym_posts', [
+			'from'      => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'to'        => [ 'object_type' => 'post', 'post_type' => 'post' ],
+			'symmetric' => true,
+		] );
+
+		$this->assertSame( 'both', Registry::resolveSide( 'sym_posts', null, 'post' ) );
+		$this->assertSame( 'both', Registry::resolveSide( 'sym_posts', null, null ) );
+	}
+
+	public function test_schema_symmetric(): void {
+		Schema::belongsToMany( 'post', 'post', 'schema_sym', [
+			'symmetric' => true,
+		] );
+
+		$def = Registry::get( 'schema_sym' );
+		$this->assertTrue( $def['symmetric'] );
+	}
+
+	public function test_schema_roles(): void {
+		Schema::belongsToMany( 'post', 'post', 'schema_roles', [
+			'roles' => [ 'parent', 'child' ],
+		] );
+
+		$def = Registry::get( 'schema_roles' );
+		$this->assertSame( [ 'parent', 'child' ], $def['roles'] );
+	}
 }

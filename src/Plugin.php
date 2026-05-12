@@ -82,22 +82,53 @@ final class Plugin {
 		foreach ( $registered as $key => $definition ) {
 			$from_post_type = $definition['from']['post_type'] ?? '';
 			$to_post_type   = $definition['to']['post_type'] ?? '';
+			$roles          = $definition['roles'] ?? [];
+			$symmetric      = $definition['symmetric'] ?? false;
+			$same_type      = ( $from_post_type === $to_post_type && '' !== $from_post_type );
+
+			if ( $same_type && $symmetric && $current_post_type === $from_post_type ) {
+				$panels[] = [
+					'relType'  => $key,
+					'side'     => $current_post_type,
+					'label'    => $definition['labels']['from'] ?? $key,
+					'postType' => $from_post_type,
+				];
+				continue;
+			}
+
+			if ( $same_type && ! empty( $roles ) && $current_post_type === $from_post_type ) {
+				$panels[] = [
+					'relType'  => $key,
+					'side'     => $roles[0],
+					'label'    => $definition['labels']['from'] ?? $key,
+					'postType' => $to_post_type,
+				];
+				if ( $definition['bidirectional'] ) {
+					$panels[] = [
+						'relType'  => $key,
+						'side'     => $roles[1],
+						'label'    => $definition['labels']['to'] ?? $key,
+						'postType' => $from_post_type,
+					];
+				}
+				continue;
+			}
 
 			if ( $current_post_type === $from_post_type ) {
 				$panels[] = [
-					'relType'   => $key,
-					'direction' => 'from',
-					'label'     => $definition['labels']['from'] ?? $key,
-					'postType'  => $to_post_type,
+					'relType'  => $key,
+					'side'     => $from_post_type,
+					'label'    => $definition['labels']['from'] ?? $key,
+					'postType' => $to_post_type,
 				];
 			}
 
-			if ( $definition['bidirectional'] && $current_post_type === $to_post_type ) {
+			if ( $definition['bidirectional'] && $current_post_type === $to_post_type && ! $same_type ) {
 				$panels[] = [
-					'relType'   => $key,
-					'direction' => 'to',
-					'label'     => $definition['labels']['to'] ?? $key,
-					'postType'  => $from_post_type,
+					'relType'  => $key,
+					'side'     => $to_post_type,
+					'label'    => $definition['labels']['to'] ?? $key,
+					'postType' => $from_post_type,
 				];
 			}
 		}
