@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Cache;
+namespace RelateWP\Cache;
 
 final class RelationshipCache {
 
-	private const GROUP = 'rs_relationships';
+	private const GROUP = 'relatewp';
 
 	public static function get( string $key ): mixed {
 		$value = wp_cache_get( $key, self::GROUP );

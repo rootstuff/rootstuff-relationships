@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Hooks;
+namespace RelateWP\Hooks;
 
 /**
  * Optional hook point for post-save relationship processing.

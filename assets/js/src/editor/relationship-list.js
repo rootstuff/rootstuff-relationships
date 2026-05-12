@@ -38,31 +38,31 @@ export default function RelationshipList( { relType, side, postId } ) {
 
 	if ( connections.length === 0 ) {
 		return (
-			<p className="rs-relationship-list__empty">
-				{ __( 'No connections yet.', 'rootstuff-relationships' ) }
+			<p className="relatewp-relationship-list__empty">
+				{ __( 'No connections yet.', 'relatewp' ) }
 			</p>
 		);
 	}
 
 	return (
-		<div className="rs-relationship-list">
-			<ul className="rs-relationship-list__items">
+		<div className="relatewp-relationship-list">
+			<ul className="relatewp-relationship-list__items">
 				{ connections.map( ( connection ) => {
 					const obj = connection.connected_object;
 					return (
 						<li
 							key={ obj.id }
-							className="rs-relationship-list__item"
+							className="relatewp-relationship-list__item"
 						>
-							<span className="rs-relationship-list__item-title">
+							<span className="relatewp-relationship-list__item-title">
 								{ obj.title ||
-									__( '(no title)', 'rootstuff-relationships' ) }
+									__( '(no title)', 'relatewp' ) }
 							</span>
 							<Button
 								icon="no-alt"
 								label={ __(
 									'Remove connection',
-									'rootstuff-relationships'
+									'relatewp'
 								) }
 								isSmall
 								isDestructive
@@ -78,11 +78,11 @@ export default function RelationshipList( { relType, side, postId } ) {
 					isBusy={ isSaving }
 					disabled={ isSaving }
 					onClick={ handleSave }
-					className="rs-relationship-list__save"
+					className="relatewp-relationship-list__save"
 				>
 					{ isSaving
-						? __( 'Saving…', 'rootstuff-relationships' )
-						: __( 'Save Connections', 'rootstuff-relationships' ) }
+						? __( 'Saving…', 'relatewp' )
+						: __( 'Save Connections', 'relatewp' ) }
 				</Button>
 			) }
 			{ isSaving && <Spinner /> }

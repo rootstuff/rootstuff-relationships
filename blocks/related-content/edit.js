@@ -13,7 +13,7 @@ const TEMPLATE = [
 		'core/heading',
 		{
 			level: 2,
-			placeholder: __( 'Related Content', 'rootstuff-relationships' ),
+			placeholder: __( 'Related Content', 'relatewp' ),
 		},
 	],
 ];
@@ -23,13 +23,13 @@ export default function Edit( { attributes, setAttributes } ) {
 	const [ relationships, setRelationships ] = useState( [] );
 
 	useEffect( () => {
-		apiFetch( { path: '/rootstuff-rel/v1/relationships' } )
+		apiFetch( { path: '/relatewp/v1/relationships' } )
 			.then( ( data ) => setRelationships( data || [] ) )
 			.catch( () => {} );
 	}, [] );
 
 	const options = [
-		{ label: __( '— Select relationship —', 'rootstuff-relationships' ), value: '' },
+		{ label: __( '— Select relationship —', 'relatewp' ), value: '' },
 		...relationships.map( ( rel ) => ( {
 			label: `${ rel.labels.from } / ${ rel.labels.to } (${ rel.key })`,
 			value: rel.key,
@@ -37,7 +37,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	];
 
 	const blockProps = useBlockProps( {
-		className: 'rs-related-content',
+		className: 'relatewp-related-content',
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps(
@@ -50,8 +50,8 @@ export default function Edit( { attributes, setAttributes } ) {
 			<div { ...blockProps }>
 				<Placeholder
 					icon="networking"
-					label={ __( 'Related Content', 'rootstuff-relationships' ) }
-					instructions={ __( 'Select a relationship to display connected content.', 'rootstuff-relationships' ) }
+					label={ __( 'Related Content', 'relatewp' ) }
+					instructions={ __( 'Select a relationship to display connected content.', 'relatewp' ) }
 				>
 					<SelectControl
 						value={ relType }
@@ -67,9 +67,9 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...blockProps }>
 			<InspectorControls>
-				<PanelBody title={ __( 'Relationship', 'rootstuff-relationships' ) }>
+				<PanelBody title={ __( 'Relationship', 'relatewp' ) }>
 					<SelectControl
-						label={ __( 'Relationship type', 'rootstuff-relationships' ) }
+						label={ __( 'Relationship type', 'relatewp' ) }
 						value={ relType }
 						options={ options }
 						onChange={ ( value ) => setAttributes( { relType: value } ) }
@@ -78,8 +78,8 @@ export default function Edit( { attributes, setAttributes } ) {
 				</PanelBody>
 			</InspectorControls>
 			<div { ...innerBlocksProps } />
-			<p className="rs-related-content__placeholder">
-				{ __( 'Related content will appear here on the frontend.', 'rootstuff-relationships' ) }
+			<p className="relatewp-related-content__placeholder">
+				{ __( 'Related content will appear here on the frontend.', 'relatewp' ) }
 			</p>
 		</div>
 	);

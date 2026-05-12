@@ -2,23 +2,23 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Query;
+namespace RelateWP\Query;
 
-use Rootstuff\Relationships\Database\Tables;
-use Rootstuff\Relationships\Registry;
+use RelateWP\Database\Tables;
+use RelateWP\Registry;
 
 /**
- * Integrates with WP_Query via `posts_clauses` to support the `rs_related` parameter.
+ * Integrates with WP_Query via `posts_clauses` to support the `relatewp_related` parameter.
  *
  * Usage:
  *   $query = new WP_Query([
  *       'post_type'  => 'book',
- *       'rs_related' => [
+ *       'relatewp_related' => [
  *           'rel_type'   => 'author_books',
  *           'object_id'  => 42,
  *           'side'       => 'author',
  *       ],
- *       'orderby' => 'rs_sort_order',
+ *       'orderby' => 'relatewp_sort_order',
  *       'order'   => 'ASC',
  *   ]);
  */
@@ -33,15 +33,15 @@ final class QueryIntegration {
 	 * @param \WP_Query $query   The query instance.
 	 */
 	public static function filter_clauses( array $clauses, \WP_Query $query ): array {
-		$rs_related = $query->get( 'rs_related' );
+		$relatewp_related = $query->get( 'relatewp_related' );
 
-		if ( empty( $rs_related ) || ! is_array( $rs_related ) ) {
+		if ( empty( $relatewp_related ) || ! is_array( $relatewp_related ) ) {
 			return $clauses;
 		}
 
-		$rel_type  = sanitize_key( $rs_related['rel_type'] ?? '' );
-		$object_id = absint( $rs_related['object_id'] ?? 0 );
-		$side      = isset( $rs_related['side'] ) ? sanitize_key( $rs_related['side'] ) : null;
+		$rel_type  = sanitize_key( $relatewp_related['rel_type'] ?? '' );
+		$object_id = absint( $relatewp_related['object_id'] ?? 0 );
+		$side      = isset( $relatewp_related['side'] ) ? sanitize_key( $relatewp_related['side'] ) : null;
 
 		if ( ! $rel_type || ! $object_id || ! Registry::exists( $rel_type ) ) {
 			return $clauses;
@@ -51,7 +51,7 @@ final class QueryIntegration {
 
 		global $wpdb;
 		$rel_table = Tables::relationships();
-		$alias     = 'rs_rel';
+		$alias     = 'relatewp_rel';
 
 		if ( 'both' === $direction ) {
 			$clauses['join'] .= $wpdb->prepare(
@@ -75,7 +75,7 @@ final class QueryIntegration {
 		}
 
 		$orderby = $query->get( 'orderby' );
-		if ( 'rs_sort_order' === $orderby ) {
+		if ( 'relatewp_sort_order' === $orderby ) {
 			$order               = strtoupper( $query->get( 'order' ) ) === 'DESC' ? 'DESC' : 'ASC';
 			$clauses['orderby']  = "{$alias}.sort_order {$order}, {$alias}.id {$order}";
 		}

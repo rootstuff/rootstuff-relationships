@@ -1,12 +1,12 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "rootstuff/related-content",
+	"name": "relatewp/related-content",
 	"version": "0.1.0",
 	"title": "Related Content",
 	"category": "widgets",
 	"icon": "networking",
-	"description": "Display content related to the current post via Rootstuff Relationships.",
+	"description": "Display content related to the current post via RelateWP.",
 	"attributes": {
 		"relType": {
 			"type": "string",
@@ -20,8 +20,8 @@
 			"padding": true
 		}
 	},
-	"textdomain": "rootstuff-relationships",
-	"editorScript": "rootstuff-related-content-editor",
+	"textdomain": "relatewp",
+	"editorScript": "relatewp-related-content-editor",
 	"style": "file:./style.css",
 	"render": "file:./render.php"
 }

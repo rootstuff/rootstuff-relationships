@@ -2,12 +2,12 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Database;
+namespace RelateWP\Database;
 
 final class Installer {
 
 	private const DB_VERSION     = '1.0.0';
-	private const DB_VERSION_KEY = 'rootstuff_rel_db_version';
+	private const DB_VERSION_KEY = 'relatewp_db_version';
 
 	public static function install(): void {
 		$installed_version = get_option( self::DB_VERSION_KEY );

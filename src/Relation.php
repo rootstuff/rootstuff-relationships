@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships;
+namespace RelateWP;
 
 use InvalidArgumentException;
-use Rootstuff\Relationships\Cache\RelationshipCache;
-use Rootstuff\Relationships\Database\Tables;
+use RelateWP\Cache\RelationshipCache;
+use RelateWP\Database\Tables;
 
 final class Relation {
 
@@ -66,7 +66,7 @@ final class Relation {
 		 * @param int    $to_id         Target object ID.
 		 * @param int    $connection_id The new connection row ID.
 		 */
-		do_action( 'rs_relationship_connected', $rel_type, $from_id, $to_id, $connection_id );
+		do_action( 'relatewp_connected', $rel_type, $from_id, $to_id, $connection_id );
 
 		return $connection_id;
 	}
@@ -96,7 +96,7 @@ final class Relation {
 			RelationshipCache::flush_for_object( $rel_type, $from_id );
 			RelationshipCache::flush_for_object( $rel_type, $to_id );
 
-			do_action( 'rs_relationship_disconnected', $rel_type, $from_id, $to_id );
+			do_action( 'relatewp_disconnected', $rel_type, $from_id, $to_id );
 		}
 
 		return (bool) $deleted;
@@ -269,7 +269,7 @@ final class Relation {
 		$total = ( $deleted_from ?: 0 ) + ( $deleted_to ?: 0 );
 
 		if ( $total > 0 ) {
-			do_action( 'rs_relationship_disconnected_all', $object_id, $total );
+			do_action( 'relatewp_disconnected_all', $object_id, $total );
 		}
 
 		return $total;

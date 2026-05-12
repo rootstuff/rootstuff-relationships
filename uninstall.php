@@ -1,17 +1,17 @@
 <?php
 /**
- * Uninstall routine for Rootstuff Relationships.
+ * Uninstall routine for RelateWP.
  *
  * Drops custom database tables when the plugin is deleted.
  *
- * @package Rootstuff\Relationships
+ * @package RelateWP
  */
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
 global $wpdb;
 
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}rs_relationship_meta" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}rs_relationships" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}relatewp_relationship_meta" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}relatewp_relationships" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 
-delete_option( 'rootstuff_rel_db_version' );
+delete_option( 'relatewp_db_version' );

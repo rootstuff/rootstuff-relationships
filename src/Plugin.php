@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships;
+namespace RelateWP;
 
-use Rootstuff\Relationships\Database\Installer;
-use Rootstuff\Relationships\Query\QueryIntegration;
-use Rootstuff\Relationships\REST\RelationshipsController;
-use Rootstuff\Relationships\REST\ConnectionsController;
-use Rootstuff\Relationships\REST\SearchController;
-use Rootstuff\Relationships\Hooks\PostDeleteHandler;
+use RelateWP\Database\Installer;
+use RelateWP\Query\QueryIntegration;
+use RelateWP\REST\RelationshipsController;
+use RelateWP\REST\ConnectionsController;
+use RelateWP\REST\SearchController;
+use RelateWP\Hooks\PostDeleteHandler;
 
 final class Plugin {
 
@@ -44,11 +44,11 @@ final class Plugin {
 		 *
 		 * Themes and plugins should hook here to call Registry::register().
 		 */
-		do_action( 'rs_relationships_init' );
+		do_action( 'relatewp_init' );
 	}
 
 	public static function register_blocks(): void {
-		$asset_file = ROOTSTUFF_REL_PATH . 'assets/js/build/related-content.asset.php';
+		$asset_file = RELATEWP_PATH . 'assets/js/build/related-content.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
 			return;
 		}
@@ -56,14 +56,14 @@ final class Plugin {
 		$asset = require $asset_file;
 
 		wp_register_script(
-			'rootstuff-related-content-editor',
-			ROOTSTUFF_REL_URL . 'assets/js/build/related-content.js',
+			'relatewp-related-content-editor',
+			RELATEWP_URL . 'assets/js/build/related-content.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
-		register_block_type( ROOTSTUFF_REL_PATH . 'blocks/related-content' );
+		register_block_type( RELATEWP_PATH . 'blocks/related-content' );
 	}
 
 	public static function register_rest_routes(): void {
@@ -73,7 +73,7 @@ final class Plugin {
 	}
 
 	public static function enqueue_editor_assets(): void {
-		$asset_file = ROOTSTUFF_REL_PATH . 'assets/js/build/editor.asset.php';
+		$asset_file = RELATEWP_PATH . 'assets/js/build/editor.asset.php';
 		if ( ! file_exists( $asset_file ) ) {
 			return;
 		}
@@ -81,16 +81,16 @@ final class Plugin {
 		$asset = require $asset_file;
 
 		wp_enqueue_script(
-			'rootstuff-relationships-editor',
-			ROOTSTUFF_REL_URL . 'assets/js/build/editor.js',
+			'relatewp-editor',
+			RELATEWP_URL . 'assets/js/build/editor.js',
 			$asset['dependencies'],
 			$asset['version'],
 			true
 		);
 
 		wp_enqueue_style(
-			'rootstuff-relationships-editor',
-			ROOTSTUFF_REL_URL . 'assets/css/editor.css',
+			'relatewp-editor',
+			RELATEWP_URL . 'assets/css/editor.css',
 			[],
 			$asset['version']
 		);
@@ -153,9 +153,9 @@ final class Plugin {
 			}
 		}
 
-		wp_localize_script( 'rootstuff-relationships-editor', 'rsRelationships', [
+		wp_localize_script( 'relatewp-editor', 'relateWP', [
 			'panels'    => $panels,
-			'restBase'  => rest_url( 'rootstuff-rel/v1' ),
+			'restBase'  => rest_url( 'relatewp/v1' ),
 			'nonce'     => wp_create_nonce( 'wp_rest' ),
 		] );
 	}

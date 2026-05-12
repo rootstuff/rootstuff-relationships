@@ -1,7 +1,7 @@
 import { createReduxStore, register } from '@wordpress/data';
 import apiFetch from '@wordpress/api-fetch';
 
-const STORE_NAME = 'rootstuff/relationships';
+const STORE_NAME = 'relatewp/store';
 
 const DEFAULT_STATE = {
 	connections: {},
@@ -162,7 +162,7 @@ const store = createReduxStore( STORE_NAME, {
 				try {
 					const params = side ? `?side=${ side }` : '';
 					const data = await apiFetch( {
-						path: `/rootstuff-rel/v1/connections/${ relType }/${ objectId }${ params }`,
+						path: `/relatewp/v1/connections/${ relType }/${ objectId }${ params }`,
 					} );
 					dispatch.setConnections(
 						relType,
@@ -172,7 +172,7 @@ const store = createReduxStore( STORE_NAME, {
 					);
 				} catch ( error ) {
 					// eslint-disable-next-line no-console
-					console.error( 'RS Relationships: failed to fetch connections', error );
+					console.error( 'RelateWP: failed to fetch connections', error );
 				}
 			};
 		},
@@ -196,7 +196,7 @@ const store = createReduxStore( STORE_NAME, {
 					exclude.forEach( ( id ) => params.append( 'exclude[]', String( id ) ) );
 
 					const results = await apiFetch( {
-						path: `/rootstuff-rel/v1/search?${ params.toString() }`,
+						path: `/relatewp/v1/search?${ params.toString() }`,
 					} );
 					dispatch( {
 						type: 'SET_SEARCH_RESULTS',
@@ -207,7 +207,7 @@ const store = createReduxStore( STORE_NAME, {
 					} );
 				} catch ( error ) {
 					// eslint-disable-next-line no-console
-					console.error( 'RS Relationships: search failed', error );
+					console.error( 'RelateWP: search failed', error );
 				} finally {
 					dispatch( {
 						type: 'SET_SEARCHING',
@@ -235,7 +235,7 @@ const store = createReduxStore( STORE_NAME, {
 
 				try {
 					await apiFetch( {
-						path: `/rootstuff-rel/v1/connections/${ relType }/${ objectId }/sync`,
+						path: `/relatewp/v1/connections/${ relType }/${ objectId }/sync`,
 						method: 'POST',
 						data: {
 							side,
@@ -245,7 +245,7 @@ const store = createReduxStore( STORE_NAME, {
 					dispatch( { type: 'MARK_CLEAN', relType, objectId, side } );
 				} catch ( error ) {
 					// eslint-disable-next-line no-console
-					console.error( 'RS Relationships: save failed', error );
+					console.error( 'RelateWP: save failed', error );
 				} finally {
 					dispatch( {
 						type: 'SET_SAVING',

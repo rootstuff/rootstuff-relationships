@@ -1,18 +1,18 @@
-.rs-relationship-panel {
+.relatewp-relationship-panel {
 	/* Panel wrapper — inherits WordPress sidebar styles */
 }
 
-.rs-relationship-selector {
+.relatewp-relationship-selector {
 	margin-top: 8px;
 }
 
-.rs-relationship-selector__spinner {
+.relatewp-relationship-selector__spinner {
 	display: flex;
 	justify-content: center;
 	padding: 8px 0;
 }
 
-.rs-relationship-selector__results {
+.relatewp-relationship-selector__results {
 	list-style: none;
 	margin: 4px 0 0;
 	padding: 0;
@@ -22,7 +22,7 @@
 	overflow-y: auto;
 }
 
-.rs-relationship-selector__result-item {
+.relatewp-relationship-selector__result-item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -37,37 +37,37 @@
 	transition: background-color 0.1s;
 }
 
-.rs-relationship-selector__result-item:hover {
+.relatewp-relationship-selector__result-item:hover {
 	background-color: #f0f0f1;
 }
 
-.rs-relationship-selector__result-status {
+.relatewp-relationship-selector__result-status {
 	font-size: 11px;
 	color: #757575;
 	margin-left: 8px;
 	text-transform: capitalize;
 }
 
-.rs-relationship-selector__no-results {
+.relatewp-relationship-selector__no-results {
 	color: #757575;
 	font-size: 13px;
 	padding: 8px 0;
 	margin: 4px 0 0;
 }
 
-.rs-relationship-list__empty {
+.relatewp-relationship-list__empty {
 	color: #757575;
 	font-size: 13px;
 	margin: 0;
 }
 
-.rs-relationship-list__items {
+.relatewp-relationship-list__items {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
 
-.rs-relationship-list__item {
+.relatewp-relationship-list__item {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -75,11 +75,11 @@
 	border-bottom: 1px solid #f0f0f1;
 }
 
-.rs-relationship-list__item:last-child {
+.relatewp-relationship-list__item:last-child {
 	border-bottom: none;
 }
 
-.rs-relationship-list__item-title {
+.relatewp-relationship-list__item-title {
 	font-size: 13px;
 	line-height: 1.4;
 	flex: 1;
@@ -89,7 +89,7 @@
 	white-space: nowrap;
 }
 
-.rs-relationship-list__save {
+.relatewp-relationship-list__save {
 	margin-top: 12px;
 	width: 100%;
 	justify-content: center;

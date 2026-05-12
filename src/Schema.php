@@ -2,7 +2,7 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships;
+namespace RelateWP;
 
 /**
  * Semantic sugar for defining relationships using Laravel-style terminology.

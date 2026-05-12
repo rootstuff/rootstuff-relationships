@@ -2,18 +2,18 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Tests\Unit;
+namespace RelateWP\Tests\Unit;
 
 use WP_UnitTestCase;
-use Rootstuff\Relationships\Registry;
-use Rootstuff\Relationships\Relation;
-use Rootstuff\Relationships\Database\Installer;
+use RelateWP\Registry;
+use RelateWP\Relation;
+use RelateWP\Database\Installer;
 use InvalidArgumentException;
 
 /**
  * Integration-style tests that require a WordPress database.
  *
- * @covers \Rootstuff\Relationships\Relation
+ * @covers \RelateWP\Relation
  */
 class RelationTest extends WP_UnitTestCase {
 
@@ -61,7 +61,7 @@ class RelationTest extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		global $wpdb;
-		$table = $wpdb->prefix . 'rs_relationships';
+		$table = $wpdb->prefix . 'relatewp_relationships';
 		$wpdb->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore
 		Registry::reset();
 		parent::tearDown();

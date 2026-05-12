@@ -2,17 +2,17 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Database;
+namespace RelateWP\Database;
 
 final class Tables {
 
 	public static function relationships(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'rs_relationships';
+		return $wpdb->prefix . 'relatewp_relationships';
 	}
 
 	public static function relationship_meta(): string {
 		global $wpdb;
-		return $wpdb->prefix . 'rs_relationship_meta';
+		return $wpdb->prefix . 'relatewp_relationship_meta';
 	}
 }

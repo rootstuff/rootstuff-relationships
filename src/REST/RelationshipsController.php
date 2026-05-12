@@ -2,16 +2,16 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\REST;
+namespace RelateWP\REST;
 
-use Rootstuff\Relationships\Registry;
+use RelateWP\Registry;
 use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
 
 final class RelationshipsController extends WP_REST_Controller {
 
-	protected $namespace = 'rootstuff-rel/v1';
+	protected $namespace = 'relatewp/v1';
 	protected $rest_base = 'relationships';
 
 	public function register_routes(): void {

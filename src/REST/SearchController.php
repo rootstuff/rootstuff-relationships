@@ -2,16 +2,16 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\REST;
+namespace RelateWP\REST;
 
-use Rootstuff\Relationships\Registry;
+use RelateWP\Registry;
 use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
 
 final class SearchController extends WP_REST_Controller {
 
-	protected $namespace = 'rootstuff-rel/v1';
+	protected $namespace = 'relatewp/v1';
 	protected $rest_base = 'search';
 
 	public function register_routes(): void {
@@ -92,7 +92,7 @@ final class SearchController extends WP_REST_Controller {
 		 * @param string $rel_type   Relationship type key.
 		 * @param string $side       Side identifier (post type or role).
 		 */
-		$query_args = apply_filters( 'rs_search_query_args', $query_args, $rel_type, $side );
+		$query_args = apply_filters( 'relatewp_search_query_args', $query_args, $rel_type, $side );
 
 		$posts   = get_posts( $query_args );
 		$results = [];

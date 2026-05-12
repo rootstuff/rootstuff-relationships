@@ -2,10 +2,10 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\REST;
+namespace RelateWP\REST;
 
-use Rootstuff\Relationships\Registry;
-use Rootstuff\Relationships\Relation;
+use RelateWP\Registry;
+use RelateWP\Relation;
 use WP_REST_Controller;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -13,7 +13,7 @@ use WP_Error;
 
 final class ConnectionsController extends WP_REST_Controller {
 
-	protected $namespace = 'rootstuff-rel/v1';
+	protected $namespace = 'relatewp/v1';
 	protected $rest_base = 'connections';
 
 	public function register_routes(): void {
@@ -115,7 +115,7 @@ final class ConnectionsController extends WP_REST_Controller {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to manage relationships.', 'rootstuff-relationships' ),
+				__( 'You do not have permission to manage relationships.', 'relatewp' ),
 				[ 'status' => 403 ]
 			);
 		}
@@ -168,13 +168,13 @@ final class ConnectionsController extends WP_REST_Controller {
 				'sort_order' => $sort_order,
 			] );
 		} catch ( \InvalidArgumentException $e ) {
-			return new WP_Error( 'rs_connection_error', $e->getMessage(), [ 'status' => 400 ] );
+			return new WP_Error( 'relatewp_connection_error', $e->getMessage(), [ 'status' => 400 ] );
 		}
 
 		if ( false === $connection_id ) {
 			return new WP_Error(
-				'rs_connection_failed',
-				__( 'Failed to create connection.', 'rootstuff-relationships' ),
+				'relatewp_connection_failed',
+				__( 'Failed to create connection.', 'relatewp' ),
 				[ 'status' => 500 ]
 			);
 		}
@@ -195,13 +195,13 @@ final class ConnectionsController extends WP_REST_Controller {
 		try {
 			$deleted = Relation::disconnect( $rel_type, $from_id, $to_id );
 		} catch ( \InvalidArgumentException $e ) {
-			return new WP_Error( 'rs_disconnect_error', $e->getMessage(), [ 'status' => 400 ] );
+			return new WP_Error( 'relatewp_disconnect_error', $e->getMessage(), [ 'status' => 400 ] );
 		}
 
 		if ( ! $deleted ) {
 			return new WP_Error(
-				'rs_connection_not_found',
-				__( 'Connection not found.', 'rootstuff-relationships' ),
+				'relatewp_connection_not_found',
+				__( 'Connection not found.', 'relatewp' ),
 				[ 'status' => 404 ]
 			);
 		}
@@ -218,7 +218,7 @@ final class ConnectionsController extends WP_REST_Controller {
 		try {
 			Relation::sync( $rel_type, $object_id, $side, $connected_ids );
 		} catch ( \InvalidArgumentException $e ) {
-			return new WP_Error( 'rs_sync_error', $e->getMessage(), [ 'status' => 400 ] );
+			return new WP_Error( 'relatewp_sync_error', $e->getMessage(), [ 'status' => 400 ] );
 		}
 
 		$updated_ids = Relation::getIds( $rel_type, $object_id, $side );

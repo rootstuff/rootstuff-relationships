@@ -1,11 +1,11 @@
 {
-    "name": "rootstuff/relationships",
+    "name": "relatewp/relatewp",
     "description": "A developer-first relationship layer for WordPress content modeling.",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "autoload": {
         "psr-4": {
-            "Rootstuff\\Relationships\\": "src/"
+            "RelateWP\\": "src/"
         }
     },
     "require": {

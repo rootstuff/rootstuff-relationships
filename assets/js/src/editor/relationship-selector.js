@@ -84,32 +84,32 @@ export default function RelationshipSelector( {
 	);
 
 	return (
-		<div className="rs-relationship-selector">
+		<div className="relatewp-relationship-selector">
 			<TextControl
-				placeholder={ __( 'Search to connect…', 'rootstuff-relationships' ) }
+				placeholder={ __( 'Search to connect…', 'relatewp' ) }
 				value={ query }
 				onChange={ handleSearch }
 				__nextHasNoMarginBottom
 			/>
 			{ isSearching && (
-				<div className="rs-relationship-selector__spinner">
+				<div className="relatewp-relationship-selector__spinner">
 					<Spinner />
 				</div>
 			) }
 			{ query.length >= 2 && filteredResults.length > 0 && (
-				<ul className="rs-relationship-selector__results">
+				<ul className="relatewp-relationship-selector__results">
 					{ filteredResults.map( ( item ) => (
 						<li key={ item.id }>
 							<button
 								type="button"
-								className="rs-relationship-selector__result-item"
+								className="relatewp-relationship-selector__result-item"
 								onClick={ () => handleSelect( item ) }
 							>
-								<span className="rs-relationship-selector__result-title">
-									{ item.title || __( '(no title)', 'rootstuff-relationships' ) }
+								<span className="relatewp-relationship-selector__result-title">
+									{ item.title || __( '(no title)', 'relatewp' ) }
 								</span>
 								{ item.status !== 'publish' && (
-									<span className="rs-relationship-selector__result-status">
+									<span className="relatewp-relationship-selector__result-status">
 										{ item.status }
 									</span>
 								) }
@@ -121,8 +121,8 @@ export default function RelationshipSelector( {
 			{ query.length >= 2 &&
 				! isSearching &&
 				filteredResults.length === 0 && (
-					<p className="rs-relationship-selector__no-results">
-						{ __( 'No results found.', 'rootstuff-relationships' ) }
+					<p className="relatewp-relationship-selector__no-results">
+						{ __( 'No results found.', 'relatewp' ) }
 					</p>
 				) }
 		</div>

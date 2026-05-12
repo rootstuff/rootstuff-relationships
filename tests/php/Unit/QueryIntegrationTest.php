@@ -2,17 +2,17 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Tests\Unit;
+namespace RelateWP\Tests\Unit;
 
 use WP_UnitTestCase;
 use WP_Query;
-use Rootstuff\Relationships\Registry;
-use Rootstuff\Relationships\Relation;
-use Rootstuff\Relationships\Database\Installer;
-use Rootstuff\Relationships\Query\QueryIntegration;
+use RelateWP\Registry;
+use RelateWP\Relation;
+use RelateWP\Database\Installer;
+use RelateWP\Query\QueryIntegration;
 
 /**
- * @covers \Rootstuff\Relationships\Query\QueryIntegration
+ * @covers \RelateWP\Query\QueryIntegration
  */
 class QueryIntegrationTest extends WP_UnitTestCase {
 
@@ -62,7 +62,7 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 
 	protected function tearDown(): void {
 		global $wpdb;
-		$table = $wpdb->prefix . 'rs_relationships';
+		$table = $wpdb->prefix . 'relatewp_relationships';
 		$wpdb->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore
 		Registry::reset();
 		parent::tearDown();
@@ -71,7 +71,7 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 	public function test_wp_query_returns_related_posts(): void {
 		$query = new WP_Query( [
 			'post_type'  => 'book',
-			'rs_related' => [
+			'relatewp_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->author_id,
 				'side'      => 'author',
@@ -89,7 +89,7 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 	public function test_wp_query_auto_detect(): void {
 		$query = new WP_Query( [
 			'post_type'  => 'book',
-			'rs_related' => [
+			'relatewp_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->author_id,
 			],
@@ -105,12 +105,12 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 	public function test_wp_query_sort_order(): void {
 		$query = new WP_Query( [
 			'post_type'  => 'book',
-			'rs_related' => [
+			'relatewp_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->author_id,
 				'side'      => 'author',
 			],
-			'orderby' => 'rs_sort_order',
+			'orderby' => 'relatewp_sort_order',
 			'order'   => 'ASC',
 		] );
 
@@ -122,7 +122,7 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 	public function test_wp_query_reverse_side(): void {
 		$query = new WP_Query( [
 			'post_type'  => 'author',
-			'rs_related' => [
+			'relatewp_related' => [
 				'rel_type'  => 'author_books',
 				'object_id' => $this->book_1_id,
 				'side'      => 'book',
@@ -133,7 +133,7 @@ class QueryIntegrationTest extends WP_UnitTestCase {
 		$this->assertSame( $this->author_id, $query->posts[0]->ID );
 	}
 
-	public function test_wp_query_without_rs_related_unaffected(): void {
+	public function test_wp_query_without_relatewp_related_unaffected(): void {
 		$query = new WP_Query( [
 			'post_type'      => 'book',
 			'posts_per_page' => -1,

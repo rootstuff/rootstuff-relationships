@@ -1,4 +1,4 @@
-# Rootstuff Relationships
+# RelateWP
 
 A developer-first relationship layer for WordPress content modeling. Define `belongsTo`, `hasMany`, and `belongsToMany` relationships between any post types using dedicated database tables — no postmeta abuse, no ACF dependency.
 
@@ -17,22 +17,22 @@ npm install && npm run build
 Activate the plugin through the WordPress admin or WP-CLI:
 
 ```bash
-wp plugin activate rootstuff-relationships
+wp plugin activate relatewp
 ```
 
 The plugin automatically creates two database tables on activation:
 
-- `{prefix}rs_relationships` — stores connections between objects
-- `{prefix}rs_relationship_meta` — optional metadata per connection
+- `{prefix}relatewp_relationships` — stores connections between objects
+- `{prefix}relatewp_relationship_meta` — optional metadata per connection
 
 ## Defining Relationships
 
-Register relationships on the `rs_relationships_init` action using the `Schema` class:
+Register relationships on the `relatewp_init` action using the `Schema` class:
 
 ```php
-use Rootstuff\Relationships\Schema;
+use RelateWP\Schema;
 
-add_action('rs_relationships_init', function () {
+add_action('relatewp_init', function () {
 
     // Many-to-many: resources ↔ posts
     Schema::belongsToMany('resource', 'post', 'resource_posts', [
@@ -76,7 +76,7 @@ Schema::belongsToMany('post', 'post', 'similar_posts', [
 The `Relation` class provides the core CRUD operations:
 
 ```php
-use Rootstuff\Relationships\Relation;
+use RelateWP\Relation;
 
 // Connect two objects
 Relation::connect('resource_posts', $resource_id, $post_id);
@@ -118,24 +118,24 @@ For symmetric relationships, no side is needed — results from both directions 
 
 ## WP_Query Integration
 
-Query related posts directly with `WP_Query` using the `rs_related` parameter:
+Query related posts directly with `WP_Query` using the `relatewp_related` parameter:
 
 ```php
 $related = new WP_Query([
     'post_type'  => 'book',
-    'rs_related' => [
+    'relatewp_related' => [
         'rel_type'  => 'author_books',
         'object_id' => $author_id,
         'side'      => 'author',    // optional, auto-detects if omitted
     ],
-    'orderby' => 'rs_sort_order',
+    'orderby' => 'relatewp_sort_order',
     'order'   => 'ASC',
 ]);
 ```
 
 ## REST API
 
-Endpoints are registered under `/wp-json/rootstuff-rel/v1/`:
+Endpoints are registered under `/wp-json/relatewp/v1/`:
 
 | Endpoint | Method | Description |
 |---|---|---|
@@ -160,13 +160,13 @@ When relationships are registered, a sidebar panel automatically appears in the 
 
 ### Actions
 
-- `rs_relationship_connected` — fires after a connection is created
-- `rs_relationship_disconnected` — fires after a connection is removed
-- `rs_relationship_disconnected_all` — fires after all connections for an object are removed
+- `relatewp_connected` — fires after a connection is created
+- `relatewp_disconnected` — fires after a connection is removed
+- `relatewp_disconnected_all` — fires after all connections for an object are removed
 
 ## Caching
 
-All `getIds()` queries are cached using the WordPress object cache (`rs_relationships` group). Caches are automatically invalidated on connect, disconnect, and sync operations.
+All `getIds()` queries are cached using the WordPress object cache (`relatewp` group). Caches are automatically invalidated on connect, disconnect, and sync operations.
 
 ## Uninstall
 

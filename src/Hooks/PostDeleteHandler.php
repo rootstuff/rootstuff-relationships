@@ -2,9 +2,9 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Hooks;
+namespace RelateWP\Hooks;
 
-use Rootstuff\Relationships\Relation;
+use RelateWP\Relation;
 
 /**
  * Cleans up relationship connections when a post is permanently deleted.

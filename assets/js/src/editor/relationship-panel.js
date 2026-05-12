@@ -61,9 +61,9 @@ export default function RelationshipPanel( {
 
 	return (
 		<PluginDocumentSettingPanel
-			name={ `rs-rel-${ relType }-${ side }` }
+			name={ `relatewp-rel-${ relType }-${ side }` }
 			title={ label }
-			className="rs-relationship-panel"
+			className="relatewp-relationship-panel"
 		>
 			<RelationshipList
 				relType={ relType }

@@ -2,16 +2,16 @@
 
 declare( strict_types=1 );
 
-namespace Rootstuff\Relationships\Tests\Unit;
+namespace RelateWP\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Rootstuff\Relationships\Registry;
-use Rootstuff\Relationships\Schema;
+use RelateWP\Registry;
+use RelateWP\Schema;
 use InvalidArgumentException;
 
 /**
- * @covers \Rootstuff\Relationships\Registry
- * @covers \Rootstuff\Relationships\Schema
+ * @covers \RelateWP\Registry
+ * @covers \RelateWP\Schema
  */
 class RegistryTest extends TestCase {
 
