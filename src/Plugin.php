@@ -30,6 +30,7 @@ final class Plugin {
 		self::$initialized = true;
 
 		add_action( 'init', [ self::class, 'fire_init' ], 5 );
+		add_action( 'init', [ self::class, 'register_blocks' ] );
 		add_action( 'rest_api_init', [ self::class, 'register_rest_routes' ] );
 		add_action( 'enqueue_block_editor_assets', [ self::class, 'enqueue_editor_assets' ] );
 
@@ -44,6 +45,25 @@ final class Plugin {
 		 * Themes and plugins should hook here to call Registry::register().
 		 */
 		do_action( 'rs_relationships_init' );
+	}
+
+	public static function register_blocks(): void {
+		$asset_file = ROOTSTUFF_REL_PATH . 'assets/js/build/related-content.asset.php';
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+
+		$asset = require $asset_file;
+
+		wp_register_script(
+			'rootstuff-related-content-editor',
+			ROOTSTUFF_REL_URL . 'assets/js/build/related-content.js',
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
+
+		register_block_type( ROOTSTUFF_REL_PATH . 'blocks/related-content' );
 	}
 
 	public static function register_rest_routes(): void {

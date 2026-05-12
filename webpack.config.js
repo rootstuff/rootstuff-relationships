@@ -5,6 +5,7 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		editor: path.resolve( __dirname, 'assets/js/src/index.js' ),
+		'related-content': path.resolve( __dirname, 'blocks/related-content/index.js' ),
 	},
 	output: {
 		...defaultConfig.output,
