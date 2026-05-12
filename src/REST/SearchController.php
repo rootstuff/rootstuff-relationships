@@ -1,0 +1,113 @@
+<?php
+
+declare( strict_types=1 );
+
+namespace Rootstuff\Relationships\REST;
+
+use Rootstuff\Relationships\Registry;
+use WP_REST_Controller;
+use WP_REST_Response;
+use WP_REST_Server;
+
+final class SearchController extends WP_REST_Controller {
+
+	protected $namespace = 'rootstuff-rel/v1';
+	protected $rest_base = 'search';
+
+	public function register_routes(): void {
+		register_rest_route( $this->namespace, '/' . $this->rest_base, [
+			[
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'search' ],
+				'permission_callback' => [ $this, 'search_permissions_check' ],
+				'args'                => [
+					'rel_type' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_key',
+						'validate_callback' => function ( $value ) {
+							return Registry::exists( $value );
+						},
+					],
+					'direction' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_key',
+						'validate_callback' => function ( $value ) {
+							return in_array( $value, [ 'from', 'to' ], true );
+						},
+					],
+					's' => [
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_text_field',
+					],
+					'exclude' => [
+						'default' => [],
+						'type'    => 'array',
+						'items'   => [ 'type' => 'integer' ],
+					],
+					'per_page' => [
+						'default'           => 10,
+						'sanitize_callback' => 'absint',
+						'validate_callback' => function ( $value ) {
+							return (int) $value > 0 && (int) $value <= 50;
+						},
+					],
+				],
+			],
+		] );
+	}
+
+	public function search_permissions_check( $request ) {
+		return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Search for posts to connect.
+	 *
+	 * When direction is 'from', the user is on the "from" side and looking for
+	 * "to" side posts to connect. Vice versa for 'to'.
+	 */
+	public function search( $request ) {
+		$rel_type  = $request->get_param( 'rel_type' );
+		$direction = $request->get_param( 'direction' );
+		$search    = $request->get_param( 's' );
+		$exclude   = array_map( 'absint', $request->get_param( 'exclude' ) );
+		$per_page  = (int) $request->get_param( 'per_page' );
+
+		$definition = Registry::get( $rel_type );
+
+		$target_side = ( 'from' === $direction ) ? 'to' : 'from';
+		$post_type   = $definition[ $target_side ]['post_type'] ?? 'post';
+
+		$query_args = [
+			'post_type'      => $post_type,
+			's'              => $search,
+			'post_status'    => [ 'publish', 'draft', 'pending', 'private' ],
+			'posts_per_page' => $per_page,
+			'post__not_in'   => $exclude,
+			'orderby'        => 'relevance',
+		];
+
+		/**
+		 * Filter the search query args for the relationship selector.
+		 *
+		 * @param array  $query_args WP_Query arguments.
+		 * @param string $rel_type   Relationship type key.
+		 * @param string $direction  Direction of the search.
+		 */
+		$query_args = apply_filters( 'rs_search_query_args', $query_args, $rel_type, $direction );
+
+		$posts   = get_posts( $query_args );
+		$results = [];
+
+		foreach ( $posts as $post ) {
+			$results[] = [
+				'id'        => $post->ID,
+				'title'     => get_the_title( $post ),
+				'status'    => $post->post_status,
+				'post_type' => $post->post_type,
+			];
+		}
+
+		return new WP_REST_Response( $results, 200 );
+	}
+}
