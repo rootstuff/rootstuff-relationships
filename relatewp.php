@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       RelateWP
- * Plugin URI:        https://rootstuff.io/relatewp
+ * Plugin URI:        https://github.com/rootstuff/relatewp
  * Description:       A developer-first relationship layer for WordPress content modeling. Laravel-style belongsTo, hasMany, and belongsToMany on dedicated database tables with Gutenberg integration.
  * Version:           0.1.0
  * Requires at least: 6.4
@@ -17,6 +17,11 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+// Pro bundles the full core — skip everything when Pro is active.
+if ( defined( 'RELATEWP_PRO_VERSION' ) ) {
+	return;
+}
 
 define( 'RELATEWP_VERSION', '0.1.0' );
 define( 'RELATEWP_FILE', __FILE__ );

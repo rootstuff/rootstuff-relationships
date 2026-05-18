@@ -11,6 +11,7 @@ use RelateWP\REST\ConnectionsController;
 use RelateWP\REST\SearchController;
 use RelateWP\Hooks\PostDeleteHandler;
 use RelateWP\Admin\AdminColumns;
+use RelateWP\Admin\Menu;
 
 final class Plugin {
 
@@ -28,6 +29,11 @@ final class Plugin {
 		if ( self::$initialized ) {
 			return;
 		}
+
+		if ( defined( 'RELATEWP_PRO_VERSION' ) ) {
+			return;
+		}
+
 		self::$initialized = true;
 
 		add_action( 'init', [ self::class, 'fire_init' ], 5 );
@@ -40,6 +46,7 @@ final class Plugin {
 
 		if ( is_admin() ) {
 			AdminColumns::register();
+			Menu::register();
 		}
 	}
 
@@ -50,6 +57,44 @@ final class Plugin {
 		 * Themes and plugins should hook here to call Registry::register().
 		 */
 		do_action( 'relatewp_init' );
+
+		/**
+		 * Filter the list of SchemaStore instances to load schemas from.
+		 *
+		 * Add-ons should append their store to the array. Each store's
+		 * load() return value is registered through Registry::register()
+		 * with normal validation. Keys already registered (typically by
+		 * code-defined relationships) are skipped, so code always wins.
+		 *
+		 * @since 0.2.0
+		 *
+		 * @param SchemaStore[] $stores
+		 */
+		$stores = apply_filters( 'relatewp_schema_stores', [] );
+
+		foreach ( $stores as $store ) {
+			if ( ! $store instanceof SchemaStore ) {
+				continue;
+			}
+
+			foreach ( $store->load() as $key => $definition ) {
+				if ( Registry::exists( $key ) ) {
+					continue;
+				}
+
+				try {
+					Registry::register( $key, $definition );
+				} catch ( \InvalidArgumentException $e ) {
+					if ( function_exists( 'error_log' ) ) {
+						error_log( sprintf(
+							'RelateWP: failed to load schema "%s": %s',
+							$key,
+							$e->getMessage()
+						) );
+					}
+				}
+			}
+		}
 	}
 
 	public static function register_blocks(): void {

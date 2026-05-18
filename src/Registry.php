@@ -185,6 +185,22 @@ final class Registry {
 	}
 
 	/**
+	 * Validate a relationship definition without registering it.
+	 *
+	 * Add-ons (e.g. the Schema Builder REST API) can call this to mirror
+	 * the validation `register()` performs, without side effects. Throws
+	 * the same InvalidArgumentException messages on failure.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @throws InvalidArgumentException When the definition is invalid.
+	 */
+	public static function validate_definition( string $key, array $definition ): void {
+		$definition = wp_parse_args( $definition, self::DEFAULTS );
+		self::validate( $key, $definition );
+	}
+
+	/**
 	 * Reset the registry. Intended for testing only.
 	 *
 	 * @internal

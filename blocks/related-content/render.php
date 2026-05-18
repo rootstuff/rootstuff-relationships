@@ -19,11 +19,11 @@ if ( empty( $related ) ) {
 	return;
 }
 
-$classes = [ 'relatewp-related-content', 'relatewp-layout-' . $layout ];
+$classes = [ 'relatewp-related-content', 'relatewp-layout-' . sanitize_html_class( $layout ) ];
 $wrapper = get_block_wrapper_attributes( [ 'class' => implode( ' ', $classes ) ] );
 ?>
-<section <?php echo $wrapper; ?>>
-	<?php echo $content; ?>
+<section <?php echo $wrapper; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns safe, pre-escaped HTML attributes. ?>>
+	<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $content is the rendered InnerBlocks output, already escaped by render_block(). ?>
 
 	<?php if ( 'grid' === $layout ) : ?>
 		<div class="relatewp-related-content__grid" style="--relatewp-columns: <?php echo (int) $columns; ?>">
@@ -31,7 +31,7 @@ $wrapper = get_block_wrapper_attributes( [ 'class' => implode( ' ', $classes ) ]
 				<div class="relatewp-related-content__card">
 					<?php if ( $show_thumbnail && has_post_thumbnail( $item ) ) : ?>
 						<a class="relatewp-related-content__thumb" href="<?php echo esc_url( get_permalink( $item ) ); ?>">
-							<?php echo get_the_post_thumbnail( $item, 'medium', [ 'class' => 'relatewp-related-content__image' ] ); ?>
+							<?php echo get_the_post_thumbnail( $item, 'medium', [ 'class' => 'relatewp-related-content__image' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_the_post_thumbnail() returns pre-escaped <img> HTML. ?>
 						</a>
 					<?php endif; ?>
 					<a class="relatewp-related-content__link" href="<?php echo esc_url( get_permalink( $item ) ); ?>">
@@ -54,7 +54,7 @@ $wrapper = get_block_wrapper_attributes( [ 'class' => implode( ' ', $classes ) ]
 					esc_html( get_the_title( $item ) )
 				);
 			}, $related );
-			echo implode( ', ', $links );
+			echo implode( ', ', $links ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $links members are built from esc_url() + esc_html() above.
 			?>
 		</p>
 

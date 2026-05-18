@@ -205,6 +205,92 @@ final class Relation {
 	}
 
 	/**
+	 * Batch fetch related IDs for many parent objects in a single query.
+	 *
+	 * Designed for resolvers that need to avoid n+1 queries (e.g. GraphQL
+	 * connection resolvers fanning out across many parent nodes). Returns
+	 * one entry per requested object ID — with an empty array when no
+	 * connections exist — and seeds the per-object cache for each one,
+	 * so subsequent `getIds()` calls hit cache.
+	 *
+	 * @since 0.3.0
+	 *
+	 * @param string $rel_type   Registered relationship key.
+	 * @param int[]  $object_ids Parent object IDs to look up.
+	 * @param string $direction  'from' or 'to'. Same-type symmetric
+	 *                           relationships should query both sides
+	 *                           via two calls; this method does not
+	 *                           handle the 'both' case.
+	 *
+	 * @return array<int, int[]> Map of parent object ID to its related
+	 *                           IDs, ordered by sort_order ASC, id ASC.
+	 */
+	public static function getConnectionsForObjects( string $rel_type, array $object_ids, string $direction ): array {
+		self::validate_rel_type( $rel_type );
+
+		if ( ! in_array( $direction, [ 'from', 'to' ], true ) ) {
+			throw new InvalidArgumentException(
+				sprintf( 'Invalid direction "%s". Expected "from" or "to".', $direction )
+			);
+		}
+
+		$object_ids = array_values( array_unique( array_map( 'intval', $object_ids ) ) );
+		$object_ids = array_filter( $object_ids, fn( $id ) => $id > 0 );
+
+		$result = array_fill_keys( $object_ids, [] );
+
+		if ( empty( $object_ids ) ) {
+			return $result;
+		}
+
+		$missing = [];
+		foreach ( $object_ids as $id ) {
+			$cache_key = RelationshipCache::build_ids_key( $rel_type, $id, $direction );
+			$cached    = RelationshipCache::get( $cache_key );
+			if ( null !== $cached ) {
+				$result[ $id ] = $cached;
+			} else {
+				$missing[] = $id;
+			}
+		}
+
+		if ( empty( $missing ) ) {
+			return $result;
+		}
+
+		global $wpdb;
+		$table        = Tables::relationships();
+		$placeholders = implode( ',', array_fill( 0, count( $missing ), '%d' ) );
+
+		if ( 'from' === $direction ) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$sql = "SELECT from_object_id AS parent, to_object_id AS related FROM {$table} WHERE rel_type = %s AND from_object_id IN ({$placeholders}) ORDER BY sort_order ASC, id ASC";
+		} else {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$sql = "SELECT to_object_id AS parent, from_object_id AS related FROM {$table} WHERE rel_type = %s AND to_object_id IN ({$placeholders}) ORDER BY sort_order ASC, id ASC";
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, array_merge( [ $rel_type ], $missing ) ) );
+
+		$grouped = array_fill_keys( $missing, [] );
+		foreach ( (array) $rows as $row ) {
+			$parent             = (int) $row->parent;
+			$related            = (int) $row->related;
+			$grouped[ $parent ] = $grouped[ $parent ] ?? [];
+			$grouped[ $parent ][] = $related;
+		}
+
+		foreach ( $grouped as $parent_id => $ids ) {
+			$cache_key = RelationshipCache::build_ids_key( $rel_type, $parent_id, $direction );
+			RelationshipCache::set( $cache_key, $ids );
+			$result[ $parent_id ] = $ids;
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Get IDs from both directions for symmetric relationships.
 	 */
 	private static function getIdsBoth( string $rel_type, int $object_id ): array {

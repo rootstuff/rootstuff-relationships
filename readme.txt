@@ -98,20 +98,23 @@ Yes. Use the `relatewp_related` parameter:
 == Changelog ==
 
 = 0.1.0 =
-* Initial release
-* Core relationship engine with Registry, Relation, Schema, and Cache
-* All cardinality types: belongsTo, hasMany, hasOne, belongsToMany
-* Bidirectional, symmetric, and role-based same-type relationships
-* REST API with 7 endpoints across 3 controllers
-* Gutenberg sidebar panels with search, connect, and auto-save
-* WP_Query integration via `relatewp_related` parameter
-* Related Content block with list, grid, and inline layouts
-* Admin columns for related items in post list tables
-* Connection metadata API (getMeta, setMeta, deleteMeta)
-* Sortable relationship ordering with sidebar reorder controls
-* Post deletion cleanup
-* Object cache layer with automatic invalidation
-* Developer hooks: relatewp_connected, relatewp_disconnected, relatewp_disconnected_all
+* Initial release.
+* Core relationship engine with Registry, Relation, Schema, and Cache.
+* All cardinality types: belongsTo, hasMany, hasOne, belongsToMany.
+* Bidirectional, symmetric, and role-based same-type relationships.
+* REST API with 7 endpoints across 3 controllers.
+* Gutenberg sidebar panels with search, connect, and auto-save.
+* WP_Query integration via the `relatewp_related` parameter.
+* Related Content block with list, grid, and inline layouts.
+* Admin columns for related items in post list tables.
+* Connection metadata API (getMeta, setMeta, deleteMeta).
+* Sortable relationship ordering with drag-and-drop reorder controls in the sidebar.
+* Post deletion cleanup.
+* Object cache layer with automatic invalidation.
+* Batch connection fetching to avoid n+1 queries in resolvers.
+* `SchemaStore` interface and `relatewp_schema_stores` filter for add-ons to inject schemas from any source.
+* Shared `relatewp` admin menu with an Overview page listing registered relationships.
+* Developer hooks: `relatewp_init`, `relatewp_connected`, `relatewp_disconnected`, `relatewp_disconnected_all`.
 
 == Upgrade Notice ==
 
