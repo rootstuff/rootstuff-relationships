@@ -30,13 +30,19 @@
 		<circle cx="1240" cy="330" r="8" />
 		<circle cx="1430" cy="200" r="7" />
 	</g>
-	<!-- Brand mark on the left -->
+	<!-- Brand mark on the left: minimal schema diagram, golden-ratio proportions -->
 	<rect x="100" y="130" width="240" height="240" rx="44" ry="44" fill="url(#markBg)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2" />
-	<path d="M156 268 C 156 220, 284 220, 284 268" stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round" stroke-opacity="0.55" />
-	<circle cx="156" cy="298" r="28" fill="#ffffff" />
-	<circle cx="284" cy="298" r="28" fill="#ffffff" />
-	<circle cx="156" cy="298" r="10" fill="#1a5e95" />
-	<circle cx="284" cy="298" r="10" fill="#1a5e95" />
+
+	<path d="M216 190 L273 190 L273 280"
+	      stroke="#ffffff" stroke-width="8" fill="none"
+	      stroke-linecap="round" stroke-linejoin="round"
+	      stroke-opacity="0.7" />
+
+	<rect x="118" y="160" width="98" height="60" rx="13" ry="13" fill="#ffffff" />
+	<rect x="224" y="280" width="98" height="60" rx="13" ry="13" fill="#ffffff" />
+
+	<circle cx="216" cy="190" r="6.5" fill="#1a5e95" />
+	<circle cx="273" cy="280" r="6.5" fill="#1a5e95" />
 	<!-- Title -->
 	<text x="400" y="260" fill="#ffffff" font-family="Helvetica, Arial, sans-serif" font-size="84" font-weight="700" letter-spacing="-2">RelateWP</text>
 	<!-- Tagline -->
