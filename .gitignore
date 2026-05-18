@@ -1,3 +1,5 @@
 node_modules/
 assets/js/build/
 vendor/
+dist/
+wporg-assets/*.png

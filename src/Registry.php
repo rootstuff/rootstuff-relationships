@@ -38,7 +38,7 @@ final class Registry {
 	public static function register( string $key, array $definition ): void {
 		if ( isset( self::$relationships[ $key ] ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Relationship "%s" is already registered.', $key )
+				sprintf( 'Relationship "%s" is already registered.', esc_html( $key ) )
 			);
 		}
 
@@ -128,7 +128,7 @@ final class Registry {
 
 		if ( null === $definition ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Relationship type "%s" is not registered.', $rel_type )
+				sprintf( 'Relationship type "%s" is not registered.', esc_html( $rel_type ) )
 			);
 		}
 
@@ -150,7 +150,7 @@ final class Registry {
 				return 'both';
 			}
 			throw new InvalidArgumentException(
-				sprintf( 'Cannot auto-detect side for relationship "%s": no object ID or post type provided.', $rel_type )
+				sprintf( 'Cannot auto-detect side for relationship "%s": no object ID or post type provided.', esc_html( $rel_type ) )
 			);
 		}
 
@@ -168,7 +168,7 @@ final class Registry {
 				return 'both';
 			}
 			throw new InvalidArgumentException(
-				sprintf( 'Ambiguous side for same-type relationship "%s". Provide roles or mark as symmetric.', $rel_type )
+				sprintf( 'Ambiguous side for same-type relationship "%s". Provide roles or mark as symmetric.', esc_html( $rel_type ) )
 			);
 		}
 
@@ -180,7 +180,7 @@ final class Registry {
 		}
 
 		throw new InvalidArgumentException(
-			sprintf( 'Cannot resolve side "%s" for relationship "%s".', $side, $rel_type )
+			sprintf( 'Cannot resolve side "%s" for relationship "%s".', esc_html( $side ), esc_html( $rel_type ) )
 		);
 	}
 
@@ -218,13 +218,13 @@ final class Registry {
 
 		if ( empty( $definition['from'] ) || ! is_array( $definition['from'] ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Relationship "%s" requires a "from" definition.', $key )
+				sprintf( 'Relationship "%s" requires a "from" definition.', esc_html( $key ) )
 			);
 		}
 
 		if ( empty( $definition['to'] ) || ! is_array( $definition['to'] ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Relationship "%s" requires a "to" definition.', $key )
+				sprintf( 'Relationship "%s" requires a "to" definition.', esc_html( $key ) )
 			);
 		}
 
@@ -233,9 +233,9 @@ final class Registry {
 			throw new InvalidArgumentException(
 				sprintf(
 					'Relationship "%s" has invalid cardinality "%s". Valid: %s',
-					$key,
-					$cardinality,
-					implode( ', ', self::VALID_CARDINALITIES )
+					esc_html( $key ),
+					esc_html( $cardinality ),
+					esc_html( implode( ', ', self::VALID_CARDINALITIES ) )
 				)
 			);
 		}
@@ -246,9 +246,9 @@ final class Registry {
 				throw new InvalidArgumentException(
 					sprintf(
 						'Relationship "%s" %s side has invalid object_type "%s".',
-						$key,
-						$side,
-						$object_type
+						esc_html( $key ),
+						esc_html( $side ),
+						esc_html( $object_type )
 					)
 				);
 			}
@@ -262,25 +262,25 @@ final class Registry {
 
 		if ( $symmetric && ! $same_type ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Relationship "%s" cannot be symmetric when post types differ.', $key )
+				sprintf( 'Relationship "%s" cannot be symmetric when post types differ.', esc_html( $key ) )
 			);
 		}
 
 		if ( $same_type && ! $symmetric && empty( $roles ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Same-type relationship "%s" requires roles or symmetric flag.', $key )
+				sprintf( 'Same-type relationship "%s" requires roles or symmetric flag.', esc_html( $key ) )
 			);
 		}
 
 		if ( ! empty( $roles ) ) {
 			if ( ! is_array( $roles ) || count( $roles ) !== 2 ) {
 				throw new InvalidArgumentException(
-					sprintf( 'Relationship "%s" roles must be an array of exactly two strings.', $key )
+					sprintf( 'Relationship "%s" roles must be an array of exactly two strings.', esc_html( $key ) )
 				);
 			}
 			if ( $roles[0] === $roles[1] ) {
 				throw new InvalidArgumentException(
-					sprintf( 'Relationship "%s" role names must be distinct.', $key )
+					sprintf( 'Relationship "%s" role names must be distinct.', esc_html( $key ) )
 				);
 			}
 		}

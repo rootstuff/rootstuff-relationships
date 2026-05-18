@@ -4,6 +4,8 @@ declare( strict_types=1 );
 
 namespace RelateWP;
 
+defined( 'ABSPATH' ) || exit;
+
 use RelateWP\Database\Installer;
 use RelateWP\Query\QueryIntegration;
 use RelateWP\REST\RelationshipsController;
@@ -85,8 +87,8 @@ final class Plugin {
 				try {
 					Registry::register( $key, $definition );
 				} catch ( \InvalidArgumentException $e ) {
-					if ( function_exists( 'error_log' ) ) {
-						error_log( sprintf(
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG && function_exists( 'error_log' ) ) {
+						error_log( sprintf( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- gated behind WP_DEBUG; surfaces add-on schema errors during development.
 							'RelateWP: failed to load schema "%s": %s',
 							$key,
 							$e->getMessage()

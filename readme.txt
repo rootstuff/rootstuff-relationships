@@ -8,7 +8,7 @@ Requires PHP: 8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A developer-first relationship layer for WordPress. Define belongsTo, hasMany, and belongsToMany relationships between any post types using dedicated database tables.
+Define belongsTo, hasMany, and belongsToMany relationships between any post types using dedicated database tables. No postmeta abuse.
 
 == Description ==
 

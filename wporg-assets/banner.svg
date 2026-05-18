@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1544 500" width="1544" height="500">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#2271b1" />
+			<stop offset="100%" stop-color="#1a5e95" />
+		</linearGradient>
+		<linearGradient id="markBg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#ffffff" stop-opacity="0.18" />
+			<stop offset="100%" stop-color="#ffffff" stop-opacity="0.06" />
+		</linearGradient>
+	</defs>
+	<rect width="1544" height="500" fill="url(#bg)" />
+	<!-- Decorative relationship graph on the right -->
+	<g stroke="#ffffff" stroke-opacity="0.10" stroke-width="2" fill="none">
+		<path d="M970 130 C 1060 130, 1100 230, 1200 230" />
+		<path d="M970 130 C 1080 130, 1120 330, 1240 330" />
+		<path d="M1200 230 C 1300 230, 1340 330, 1240 330" />
+		<path d="M1200 230 C 1300 230, 1360 130, 1430 200" />
+		<path d="M1430 200 C 1460 280, 1380 350, 1240 330" />
+	</g>
+	<g fill="#ffffff" fill-opacity="0.18">
+		<circle cx="970" cy="130" r="20" />
+		<circle cx="1200" cy="230" r="26" />
+		<circle cx="1240" cy="330" r="22" />
+		<circle cx="1430" cy="200" r="18" />
+	</g>
+	<g fill="#ffffff" fill-opacity="0.95">
+		<circle cx="970" cy="130" r="8" />
+		<circle cx="1200" cy="230" r="10" />
+		<circle cx="1240" cy="330" r="8" />
+		<circle cx="1430" cy="200" r="7" />
+	</g>
+	<!-- Brand mark on the left -->
+	<rect x="100" y="130" width="240" height="240" rx="44" ry="44" fill="url(#markBg)" stroke="#ffffff" stroke-opacity="0.25" stroke-width="2" />
+	<path d="M156 268 C 156 220, 284 220, 284 268" stroke="#ffffff" stroke-width="10" fill="none" stroke-linecap="round" stroke-opacity="0.55" />
+	<circle cx="156" cy="298" r="28" fill="#ffffff" />
+	<circle cx="284" cy="298" r="28" fill="#ffffff" />
+	<circle cx="156" cy="298" r="10" fill="#1a5e95" />
+	<circle cx="284" cy="298" r="10" fill="#1a5e95" />
+	<!-- Title -->
+	<text x="400" y="260" fill="#ffffff" font-family="Helvetica, Arial, sans-serif" font-size="84" font-weight="700" letter-spacing="-2">RelateWP</text>
+	<!-- Tagline -->
+	<text x="400" y="318" fill="#ffffff" fill-opacity="0.85" font-family="Helvetica, Arial, sans-serif" font-size="30" font-weight="400">A developer-first relationship layer for WordPress content modeling.</text>
+</svg>

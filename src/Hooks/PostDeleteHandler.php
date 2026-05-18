@@ -4,6 +4,8 @@ declare( strict_types=1 );
 
 namespace RelateWP\Hooks;
 
+defined( 'ABSPATH' ) || exit;
+
 use RelateWP\Relation;
 
 /**

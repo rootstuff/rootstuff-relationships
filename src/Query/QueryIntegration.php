@@ -4,6 +4,8 @@ declare( strict_types=1 );
 
 namespace RelateWP\Query;
 
+defined( 'ABSPATH' ) || exit;
+
 use RelateWP\Database\Tables;
 use RelateWP\Registry;
 

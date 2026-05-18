@@ -4,6 +4,8 @@ declare( strict_types=1 );
 
 namespace RelateWP\Admin;
 
+defined( 'ABSPATH' ) || exit;
+
 use RelateWP\Registry;
 
 /**

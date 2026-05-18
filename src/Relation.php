@@ -230,7 +230,7 @@ final class Relation {
 
 		if ( ! in_array( $direction, [ 'from', 'to' ], true ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Invalid direction "%s". Expected "from" or "to".', $direction )
+				sprintf( 'Invalid direction "%s". Expected "from" or "to".', esc_html( $direction ) )
 			);
 		}
 
@@ -501,7 +501,7 @@ final class Relation {
 	private static function validate_rel_type( string $rel_type ): void {
 		if ( ! Registry::exists( $rel_type ) ) {
 			throw new InvalidArgumentException(
-				sprintf( 'Relationship type "%s" is not registered.', $rel_type )
+				sprintf( 'Relationship type "%s" is not registered.', esc_html( $rel_type ) )
 			);
 		}
 	}
@@ -658,13 +658,13 @@ final class Relation {
 			$existing_from = self::getIdsInternal( $rel_type, $from_id, 'from' );
 			if ( ! empty( $existing_from ) ) {
 				throw new InvalidArgumentException(
-					sprintf( 'Cardinality violation: "%s" is one-to-one, source %d already has a connection.', $rel_type, $from_id )
+					sprintf( 'Cardinality violation: "%s" is one-to-one, source %d already has a connection.', esc_html( $rel_type ), (int) $from_id )
 				);
 			}
 			$existing_to = self::getIdsInternal( $rel_type, $to_id, 'to' );
 			if ( ! empty( $existing_to ) ) {
 				throw new InvalidArgumentException(
-					sprintf( 'Cardinality violation: "%s" is one-to-one, target %d already has a connection.', $rel_type, $to_id )
+					sprintf( 'Cardinality violation: "%s" is one-to-one, target %d already has a connection.', esc_html( $rel_type ), (int) $to_id )
 				);
 			}
 		}
@@ -673,7 +673,7 @@ final class Relation {
 			$existing_to = self::getIdsInternal( $rel_type, $to_id, 'to' );
 			if ( ! empty( $existing_to ) ) {
 				throw new InvalidArgumentException(
-					sprintf( 'Cardinality violation: "%s" is one-to-many, target %d already belongs to another source.', $rel_type, $to_id )
+					sprintf( 'Cardinality violation: "%s" is one-to-many, target %d already belongs to another source.', esc_html( $rel_type ), (int) $to_id )
 				);
 			}
 		}
