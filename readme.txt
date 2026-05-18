@@ -23,6 +23,7 @@ RelateWP provides a clean, Laravel-inspired API for defining and querying relati
 * **WP_Query integration** — use the `relatewp_related` parameter in any WP_Query
 * **REST API** — full CRUD endpoints for headless or decoupled setups
 * **Gutenberg sidebar** — searchable selector to manage connections per post
+* **Classic Editor fallback** — native multi-select metabox on post-edit screens where the block editor is not active
 * **Related Content block** — drop-in block with list, grid, and inline layouts
 * **Admin columns** — show related items in the posts list table
 * **Connection metadata** — store per-connection key/value data
@@ -69,6 +70,10 @@ Or use the **Related Content** block in the block editor — select a relationsh
 
 No. RelateWP handles content relationships only. You can use it alongside ACF, Meta Box, or any custom fields plugin.
 
+= Does it work with the Classic Editor? =
+
+Yes. On any post-edit screen where the block editor is not in use (Classic Editor plugin active, or a post type opted out of REST), RelateWP renders a native multi-select metabox per relationship. Selections sync to the same database tables as the block editor sidebar, so the two UIs are interchangeable. Drag-to-reorder and live search are block-editor only — the classic metabox shows currently-connected items first, then an alphabetical pool of up to 200 additional candidates.
+
 = Where is the data stored? =
 
 In two dedicated database tables, not in `wp_postmeta`. This ensures relational integrity and fast queries.
@@ -104,6 +109,7 @@ Yes. Use the `relatewp_related` parameter:
 * Bidirectional, symmetric, and role-based same-type relationships.
 * REST API with 7 endpoints across 3 controllers.
 * Gutenberg sidebar panels with search, connect, and auto-save.
+* Classic Editor fallback metabox for post-edit screens where the block editor is not active.
 * WP_Query integration via the `relatewp_related` parameter.
 * Related Content block with list, grid, and inline layouts.
 * Admin columns for related items in post list tables.

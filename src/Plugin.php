@@ -14,6 +14,7 @@ use RelateWP\REST\SearchController;
 use RelateWP\Hooks\PostDeleteHandler;
 use RelateWP\Admin\AdminColumns;
 use RelateWP\Admin\Menu;
+use RelateWP\Admin\RelationshipMetabox;
 
 final class Plugin {
 
@@ -49,6 +50,7 @@ final class Plugin {
 		if ( is_admin() ) {
 			AdminColumns::register();
 			Menu::register();
+			RelationshipMetabox::register();
 		}
 	}
 
