@@ -1,0 +1,43 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "rootstuff-relationships/related-content",
+	"version": "0.1.0",
+	"title": "Related Content",
+	"category": "widgets",
+	"icon": "networking",
+	"description": "Display content related to the current post via Rootstuff Relationships.",
+	"attributes": {
+		"relType": {
+			"type": "string",
+			"default": ""
+		},
+		"layout": {
+			"type": "string",
+			"default": "list"
+		},
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"showThumbnail": {
+			"type": "boolean",
+			"default": true
+		},
+		"showExcerpt": {
+			"type": "boolean",
+			"default": false
+		}
+	},
+	"supports": {
+		"html": false,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"textdomain": "rootstuff-relationships",
+	"editorScript": "rootstuff-relationships-related-content-editor",
+	"style": "file:./style.css",
+	"render": "file:./render.php"
+}

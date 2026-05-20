@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+			<stop offset="0%" stop-color="#2271b1" />
+			<stop offset="100%" stop-color="#1a5e95" />
+		</linearGradient>
+	</defs>
+	<rect width="256" height="256" rx="48" ry="48" fill="url(#bg)" />
+
+	<!--
+		Two cards (84 x 52, ratio 1.615 ~= phi).
+		Symmetric padding: 40 horizontal, 52 vertical.
+		L-connector segments: 50 x 74 (ratio 1.48 ~= phi).
+	-->
+	<path d="M124 78 L174 78 L174 152"
+	      stroke="#ffffff" stroke-width="6" fill="none"
+	      stroke-linecap="round" stroke-linejoin="round"
+	      stroke-opacity="0.75" />
+
+	<rect x="40" y="52" width="84" height="52" rx="10" ry="10" fill="#ffffff" />
+	<rect x="132" y="152" width="84" height="52" rx="10" ry="10" fill="#ffffff" />
+
+	<circle cx="124" cy="78" r="5" fill="#1a5e95" />
+	<circle cx="174" cy="152" r="5" fill="#1a5e95" />
+</svg>

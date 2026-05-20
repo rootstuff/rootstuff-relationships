@@ -1,0 +1,138 @@
+.rootstuff-relationships-relationship-panel {
+	/* Panel wrapper — inherits WordPress sidebar styles */
+}
+
+.rootstuff-relationships-relationship-selector {
+	margin-top: 8px;
+}
+
+.rootstuff-relationships-relationship-selector__spinner {
+	display: flex;
+	justify-content: center;
+	padding: 8px 0;
+}
+
+.rootstuff-relationships-relationship-selector__results {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0;
+	border: 1px solid #ddd;
+	border-radius: 2px;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.rootstuff-relationships-relationship-selector__result-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 8px 12px;
+	border: none;
+	background: none;
+	cursor: pointer;
+	text-align: left;
+	font-size: 13px;
+	line-height: 1.4;
+	transition: background-color 0.1s;
+}
+
+.rootstuff-relationships-relationship-selector__result-item:hover {
+	background-color: #f0f0f1;
+}
+
+.rootstuff-relationships-relationship-selector__result-status {
+	font-size: 11px;
+	color: #757575;
+	margin-left: 8px;
+	text-transform: capitalize;
+}
+
+.rootstuff-relationships-relationship-selector__no-results {
+	color: #757575;
+	font-size: 13px;
+	padding: 8px 0;
+	margin: 4px 0 0;
+}
+
+.rootstuff-relationships-relationship-list__empty {
+	color: #757575;
+	font-size: 13px;
+	margin: 0;
+}
+
+.rootstuff-relationships-relationship-list__items {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.rootstuff-relationships-relationship-list__item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 6px 0;
+	border-bottom: 1px solid #f0f0f1;
+	transition: background-color 0.1s;
+}
+
+.rootstuff-relationships-relationship-list__item:last-child {
+	border-bottom: none;
+}
+
+.rootstuff-relationships-relationship-list__item[draggable="true"] {
+	cursor: grab;
+}
+
+.rootstuff-relationships-relationship-list__item[draggable="true"]:active {
+	cursor: grabbing;
+}
+
+.rootstuff-relationships-relationship-list__item--dragging {
+	opacity: 0.4;
+}
+
+.rootstuff-relationships-relationship-list__item--drop-above {
+	border-top: 2px solid var(--wp-admin-theme-color, #3858e9);
+	padding-top: 4px;
+}
+
+.rootstuff-relationships-relationship-list__item--drop-below {
+	border-bottom: 2px solid var(--wp-admin-theme-color, #3858e9);
+	padding-bottom: 4px;
+}
+
+.rootstuff-relationships-relationship-list__item-title {
+	font-size: 13px;
+	line-height: 1.4;
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.rootstuff-relationships-relationship-list__save {
+	margin-top: 12px;
+	width: 100%;
+	justify-content: center;
+}
+
+/* Drag handle */
+.rootstuff-relationships-relationship-list__drag-handle {
+	display: flex;
+	align-items: center;
+	color: #949494;
+	cursor: grab;
+	margin-right: 4px;
+	flex-shrink: 0;
+}
+
+.rootstuff-relationships-relationship-list__drag-handle:active {
+	cursor: grabbing;
+}
+
+.rootstuff-relationships-relationship-list__drag-handle svg {
+	width: 18px;
+	height: 18px;
+}
